@@ -33,7 +33,7 @@ for row in teeth_brushing_csv:
         # from the day
         date_minus_1 = datetime(int(recorded_date[5:7])+2000, int(recorded_date[0]), int(recorded_date[2:4])) - timedelta(days=1)
 
-        # convert datetime date_minus_1 to string in format: month-date-year
+        # convert datetime date_minus_1 to string in format: subject-month-date-year
         new_file_name = "subject"+subject+"-"+date_minus_1.strftime('%m-%d-')[1:]+"19"+".mp4"
     else:
         #TODO adjust to be able to fit 7 or 6 characters in the date!
@@ -42,7 +42,7 @@ for row in teeth_brushing_csv:
 	print os.path.join(path_to_videos, new_file_name)
 
     # rename current_file_name to new_file_name
-    if len(old_file_name) > 0 && os.path.isfile(old_file_name[0]):
+    if len(old_file_name) > 0 and os.path.isfile(old_file_name[0]):
         	# file is inside folder, so need to rename
         	os.rename(old_file_name[0], path_to_videos+new_file_name)
     else:
