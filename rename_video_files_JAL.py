@@ -9,10 +9,14 @@ import csv
 
 # create an instance of the data in the csv
 # TODO: make it read in any csv with "Teeth brushing evening" in  the beginning?
-teeth_brushing_csv = csv.DictReader(open("/Volumes/Julia_HardDrive/Teeth brushing evening pilot v2 3.20.19_April 2, 2019_07.29.csv"))
+# Dr. Leonard's local = "/Volumes/Julia_HardDrive/Teeth brushing evening pilot v2 3.20.19_April 2, 2019_07.29.csv"
+# Hunter's local development = "/Users/appollo_liu/Desktop/Teeth brushing evening pilot FOR HUNTER.csv"
+teeth_brushing_csv = csv.DictReader(open("/Users/appollo_liu/Desktop/Teeth brushing evening pilot FOR HUNTER.csv"))
 
 # set the path to the videos
-path_to_videos = "/Volumes/Julia_HardDrive/Q9/"
+# Dr. Leonard's local = "/Volumes/Julia_HardDrive/Q9/"
+# Hunter's local development = "Users/appollo_liu/Desktop"
+path_to_videos = "Users/appollo_liu/Desktop"
 
 # For loop through each row of csv
 for row in teeth_brushing_csv:
@@ -25,19 +29,30 @@ for row in teeth_brushing_csv:
     current_file_name = row['ResponseId']
     old_file_name = glob.glob(path_to_videos+current_file_name+'*.MOV')
 
-    # print old_file_name
+    # recorded_date can be either 6 or 7 characters long depending on if the
+    # day in the year is greater than 9
+    if recorded_date[4] == "/":
+        # recorded_date day is greater than 9
+        if int(recorded_date[-5:-3]) < 12:
+            # submitted the day after the video was taken, so need to subtract one
+            # from the day
+            date_minus_1 = datetime(int(recorded_date[5:7])+2000, int(recorded_date[0]), int(recorded_date[2:4])) - timedelta(days=1)
 
-    # know that current row is actual data
-    if int(recorded_date[-5:-3]) < 12:
-        # submitted the day after the video was taken, so need to subtract one
-        # from the day
-        date_minus_1 = datetime(int(recorded_date[5:7])+2000, int(recorded_date[0]), int(recorded_date[2:4])) - timedelta(days=1)
-
-        # convert datetime date_minus_1 to string in format: subject-month-date-year
-        new_file_name = "subject"+subject+"-"+date_minus_1.strftime('%m-%d-')[1:]+"19"+".mp4"
+            # convert datetime date_minus_1 to string in format: subject-month-date-year
+            new_file_name = "subject"+subject+"-"+date_minus_1.strftime('%m-%d-')[1:]+"19"+".mp4"
+        else:
+        	new_file_name ="subject"+subject+"-"+recorded_date.replace('/','-')[:7]+".mp4"
     else:
-        #TODO adjust to be able to fit 7 or 6 characters in the date!
-    	new_file_name ="subject"+subject+"-"+recorded_date.replace('/','-')[:7]+".mp4"
+        # recorded_date day is less than or equal to 9
+        if int(recorded_date[-5:-3]) < 12:
+            # submitted the day after the video was taken, so need to subtract one
+            # from the day
+            date_minus_1 = datetime(int(recorded_date[5:7])+2000, int(recorded_date[0]), int(recorded_date[2])) - timedelta(days=1)
+
+            # convert datetime date_minus_1 to string in format: subject-month-date-year
+            new_file_name = "subject"+subject+"-"+date_minus_1.strftime('%m-%d-')[1:]+"19"+".mp4"
+        else:
+        	new_file_name ="subject"+subject+"-"+recorded_date.replace('/','-')[:6]+".mp4"
 
 	print os.path.join(path_to_videos, new_file_name)
 
