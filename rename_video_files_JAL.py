@@ -11,12 +11,12 @@ import csv
 # TODO: make it read in any csv with "Teeth brushing evening" in  the beginning?
 # Dr. Leonard's local = "/Volumes/Julia_HardDrive/Teeth brushing evening pilot v2 3.20.19_April 2, 2019_07.29.csv"
 # Hunter's local development = "/Users/appollo_liu/Desktop/Teeth brushing evening pilot FOR HUNTER.csv"
-teeth_brushing_csv = csv.DictReader(open("/Users/appollo_liu/Desktop/Teeth brushing evening pilot FOR HUNTER.csv"))
+teeth_brushing_csv = csv.DictReader(open("/Volumes/Julia_HardDrive/Teeth brushing evening pilot v2 3.20.19_April 2, 2019_07.29.csv"))
 
 # set the path to the videos
 # Dr. Leonard's local = "/Volumes/Julia_HardDrive/Q9/"
-# Hunter's local development = "Users/appollo_liu/Desktop"
-path_to_videos = "Users/appollo_liu/Desktop"
+# Hunter's local development = "/Users/appollo_liu/Desktop/"
+path_to_videos = "/Volumes/Julia_HardDrive/Q9/"
 
 # For loop through each row of csv
 for row in teeth_brushing_csv:
@@ -54,11 +54,12 @@ for row in teeth_brushing_csv:
         else:
         	new_file_name ="subject"+subject+"-"+recorded_date.replace('/','-')[:6]+".mp4"
 
-	print os.path.join(path_to_videos, new_file_name)
+	# print os.path.join(path_to_videos, new_file_name)
 
     # rename current_file_name to new_file_name
     if len(old_file_name) > 0 and os.path.isfile(old_file_name[0]):
-        	# file is inside folder, so need to rename
-        	os.rename(old_file_name[0], path_to_videos+new_file_name)
+        print "old file found"
+    	# file is inside folder, so need to rename
+    	os.rename(old_file_name[0], path_to_videos+new_file_name)
     else:
        print "file doesn't exist"
