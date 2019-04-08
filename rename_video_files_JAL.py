@@ -39,7 +39,7 @@ for row in teeth_brushing_csv:
             date_minus_1 = datetime(int(recorded_date[5:7])+2000, int(recorded_date[0]), int(recorded_date[2:4])) - timedelta(days=1)
 
             # convert datetime date_minus_1 to string in format: subject-month-date-year
-            new_file_name = "subject"+subject+"-"+date_minus_1.strftime('%m-%d-')[1:]+"19"+".mp4"
+            new_file_name = "subject"+subject+"-"+date_minus_1.strftime('%m-%-d-')[1:]+"19"+".mp4"
         else:
         	new_file_name ="subject"+subject+"-"+recorded_date.replace('/','-')[:7]+".mp4"
     else:
