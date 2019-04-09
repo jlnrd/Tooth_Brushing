@@ -27,7 +27,7 @@ for row in teeth_brushing_csv:
 
     # set the video file name that needs to be changed
     current_file_name = row['ResponseId']
-    old_file_name = glob.glob(path_to_videos+current_file_name+'*.MOV')
+    old_file_name = glob.glob(path_to_videos+current_file_name+'*.*')
 
     # recorded_date can be either 6 or 7 characters long depending on if the
     # day in the year is greater than 9
