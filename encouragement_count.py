@@ -8,27 +8,33 @@ def fill_video_coding_tracker(summary_csv_path, tracker_csv_path):
     # open csv file with each parental encouragement, r for reader mode
     summary_csv = csv.DictReader(open(summary_csv_path, 'r'))
 
-    date = ""
+    summary_csv_list = list(summary_csv)
+    date = summary_csv_list[0]['DATE']
     encouragement_count = 0
 
     # set up for adding rows to tracker_csv_path
-    fieldnames = ['SUBJECT', 'DATE', 'CODED?', 'ENCOURAGEMENT', 'PARENT', 'NOTES']
+    fieldnames = ['SUBJECT', 'DATE', 'ENCOURAGEMENT', 'PARENT', 'NOTES']
     # w for writer mode
     tracker_csv_writer = csv.DictWriter(open(tracker_csv_path, 'w'), fieldnames=fieldnames)
     tracker_csv_writer.writeheader()
 
     # for loop each row of the csv
-    for row in summary_csv:
+    for row_index in range(0, len(summary_csv_list) - 1):
+        row = summary_csv_list[row_index]
         row_date = row['DATE']
+        next_row_date = summary_csv_list[row_index+1]['DATE']
 
-        if (row_date != date):
-            # starting a different day add a row in the tracker csv that has
-            # subject, date, whether the video was coded, total number of
-            # parental encouragements, parent, and notes
+        if (len(row['PARENTAL ENCOURAGEMENT']) > 0):
+            # row contains encouragement, increment encouragement_count
+            encouragement_count += 1
+
+        if (row_date != next_row_date):
+            # starting a different day on next loop iteration, add a row in the
+            # tracker csv that has subject, date, whether the video was coded,
+            # total number of parental encouragements, parent, and notes
             row_dictionary = {
                 'SUBJECT': row['SUBJECT'],
                 'DATE': row_date,
-                'CODED?': "still figuring out",
                 'ENCOURAGEMENT': encouragement_count,
                 'PARENT': row['PARENT'],
                 'NOTES': ""
@@ -39,10 +45,6 @@ def fill_video_coding_tracker(summary_csv_path, tracker_csv_path):
             # reset date and encouragement_count
             date = row_date
             encouragement_count = 0
-
-        # each row contains an encouragement, always increment encouragement count
-        encouragement_count += 1
-
 
 leonard_summary_csv_path = ""
 leonard_tracker_csv_path = ""
