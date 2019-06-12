@@ -10,13 +10,13 @@ import csv
 # create an instance of the data in the csv
 # TODO: make it read in any csv with "Teeth brushing evening" in  the beginning?
 # Dr. Leonard's local = "/Volumes/Julia_HardDrive/Teeth brushing evening pilot v2 3.20.19_April 2, 2019_07.29.csv"
-# Hunter's local development = "/Users/appollo_liu/Documents/workspace/tooth_brushing_data/Teeth brushing evening pilot FOR HUNTER.csv"
-csv_path = "/Users/appollo_liu/Documents/workspace/tooth_brushing_data/Teeth brushing evening pilot FOR HUNTER.csv"
+# Hunter's local development = "/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/Teeth brushing evening pilot FOR HUNTER.csv"
+csv_path = "/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/Teeth brushing evening pilot FOR HUNTER.csv"
 teeth_brushing_csv = csv.DictReader(open(csv_path))
 # set the path to the videos
 # Dr. Leonard's local = "/Volumes/Julia_HardDrive/Q9/"
-# Hunter's local development = "/Users/appollo_liu/Documents/workspace/tooth_brushing_data/"
-path_to_videos = "/Users/appollo_liu/Documents/workspace/tooth_brushing_data/"
+# Hunter's local development = "/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/"
+path_to_videos = "/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/"
 
 # For loop through each row of csv
 for row in teeth_brushing_csv:

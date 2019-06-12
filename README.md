@@ -1,5 +1,3 @@
-# minerva
-
 ### MacOS
 
 1. Install Python 3.6.4
