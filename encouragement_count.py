@@ -10,11 +10,21 @@ def fill_video_coding_tracker(summary_csv_path, tracker_csv_path):
 
     summary_csv_list = list(summary_csv)
     date = summary_csv_list[0]['DATE']
-    encouragement_count = 0
+    encouragement_count = {
+        "Total encouragement": 0,
+        "Bribe": 0,
+        "Direct instruction": 0,
+        "Threat": 0,
+        "Pretend play": 0,
+        "Cheering": 0,
+        "Praise": 0,
+        "Other": 0
+    }
+
     notes = ""
 
     # set up for adding rows to tracker_csv_path
-    fieldnames = ['SUBJECT', 'DATE', 'ENCOURAGEMENT', 'PARENT', 'NOTES']
+    fieldnames = ['SUBJECT', 'DATE', 'PARENT', 'TOTAL ENCOURAGEMENT', 'BRIBE', 'DIRECT_INSTRUCTION', 'THREAT', 'PRETEND_PLAY', 'CHEERING', 'PRAISE', 'OTHER', 'NOTES']
     # w for writer mode
     tracker_csv_writer = csv.DictWriter(open(tracker_csv_path, 'w'), fieldnames=fieldnames)
     tracker_csv_writer.writeheader()
@@ -28,8 +38,9 @@ def fill_video_coding_tracker(summary_csv_path, tracker_csv_path):
         notes = notes + row['NOTES']
 
         if (len(row['PARENTAL ENCOURAGEMENT']) > 0):
-            # row contains encouragement, increment encouragement_count
-            encouragement_count += 1
+            # row contains encouragement, increment Total encouragement and specific type of encouragement
+            encouragement_count["Total encouragement"] += 1
+            encouragement_count[row["TYPE"]] += 1
 
         if (row_date != next_row_date):
             # starting a different day on next loop iteration, add a row in the
@@ -38,8 +49,15 @@ def fill_video_coding_tracker(summary_csv_path, tracker_csv_path):
             row_dictionary = {
                 'SUBJECT': row['SUBJECT'],
                 'DATE': row_date,
-                'ENCOURAGEMENT': encouragement_count,
                 'PARENT': row['PARENT'],
+                'TOTAL ENCOURAGEMENT': encouragement_count["Total encouragement"],
+                'BRIBE': encouragement_count["Bribe"],
+                'DIRECT_INSTRUCTION': encouragement_count["Direct instruction"],
+                'THREAT': encouragement_count["Threat"],
+                'PRETEND_PLAY': encouragement_count["Pretend play"],
+                'CHEERING': encouragement_count["Cheering"],
+                'PRAISE': encouragement_count["Praise"],
+                'OTHER': encouragement_count["Other"],
                 'NOTES': notes
             }
 
@@ -47,15 +65,37 @@ def fill_video_coding_tracker(summary_csv_path, tracker_csv_path):
 
             # reset date, encouragement_count, and notes
             date = row_date
-            encouragement_count = 0
+            encouragement_count = {
+                "Total encouragement": 0,
+                "Bribe": 0,
+                "Direct instruction": 0,
+                "Threat": 0,
+                "Pretend play": 0,
+                "Cheering": 0,
+                "Praise": 0,
+                "Other": 0
+            }
             notes = ""
         elif (row_index == len(summary_csv_list) - 2):
-            # last iteration of for loop, need to add an encouragement for the last row
+            # last iteration of for loop, need to check for encouragement in last row
+            last_row = summary_csv_list[row_index + 1]
+            if (len(last_row['PARENTAL ENCOURAGEMENT']) > 0):
+                # last row contains encouragement, increment Total encouragement and specific type of encouragement
+                encouragement_count["Total encouragement"] += 1
+                encouragement_count[last_row["TYPE"]] += 1
+
             row_dictionary = {
                 'SUBJECT': row['SUBJECT'],
                 'DATE': row_date,
-                'ENCOURAGEMENT': encouragement_count + 1,
                 'PARENT': row['PARENT'],
+                'TOTAL ENCOURAGEMENT': encouragement_count["Total encouragement"],
+                'BRIBE': encouragement_count["Bribe"],
+                'DIRECT_INSTRUCTION': encouragement_count["Direct instruction"],
+                'THREAT': encouragement_count["Threat"],
+                'PRETEND_PLAY': encouragement_count["Pretend play"],
+                'CHEERING': encouragement_count["Cheering"],
+                'PRAISE': encouragement_count["Praise"],
+                'OTHER': encouragement_count["Other"],
                 'NOTES': notes
             }
 
