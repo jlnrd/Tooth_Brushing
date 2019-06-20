@@ -42,7 +42,51 @@ def fill_video_coding_tracker(summary_csv_path, tracker_csv_path):
             encouragement_count["Total encouragement"] += 1
             encouragement_count[row["TYPE"]] += 1
 
-        if (row_date != next_row_date):
+        if (row_index == (len(summary_csv_list) - 2)):
+            # last iteration of for loop, need to check for encouragement in last row
+            last_row = summary_csv_list[row_index + 1]
+            # last row can either include a parent encouragement or not include a parent encouragement
+            if (len(last_row['PARENTAL ENCOURAGEMENT']) > 0):
+                # last row contains encouragement, increment Total encouragement and specific type of encouragement
+                encouragement_count["Total encouragement"] += 1
+                encouragement_count[last_row["TYPE"]] += 1
+
+            row_dictionary = {
+                'SUBJECT': row['SUBJECT'],
+                'DATE': row_date,
+                'PARENT': row['PARENT'],
+                'TOTAL ENCOURAGEMENT': encouragement_count["Total encouragement"],
+                'BRIBE': encouragement_count["Bribe"],
+                'DIRECT_INSTRUCTION': encouragement_count["Direct instruction"],
+                'THREAT': encouragement_count["Threat"],
+                'PRETEND_PLAY': encouragement_count["Pretend play"],
+                'CHEERING': encouragement_count["Cheering"],
+                'PRAISE': encouragement_count["Praise"],
+                'OTHER': encouragement_count["Other"],
+                'NOTES': notes
+            }
+
+            tracker_csv_writer.writerow(row_dictionary)
+
+            if (len(last_row['PARENTAL ENCOURAGEMENT']) == 0):
+                # no parent encouragement on last row, no video submitted
+                row_dictionary = {
+                    'SUBJECT': last_row['SUBJECT'],
+                    'DATE': last_row['DATE'],
+                    'PARENT': last_row['PARENT'],
+                    'TOTAL ENCOURAGEMENT': 0,
+                    'BRIBE': 0,
+                    'DIRECT_INSTRUCTION': 0,
+                    'THREAT': 0,
+                    'PRETEND_PLAY': 0,
+                    'CHEERING': 0,
+                    'PRAISE': 0,
+                    'OTHER': 0,
+                    'NOTES': last_row['NOTES']
+                }
+
+                tracker_csv_writer.writerow(row_dictionary)
+        elif (row_date != next_row_date):
             # starting a different day on next loop iteration, add a row in the
             # tracker csv that has subject, date, whether the video was coded,
             # total number of parental encouragements, parent, and notes
@@ -76,33 +120,7 @@ def fill_video_coding_tracker(summary_csv_path, tracker_csv_path):
                 "Other": 0
             }
             notes = ""
-        elif (row_index == len(summary_csv_list) - 2):
-            # last iteration of for loop, need to check for encouragement in last row
-            last_row = summary_csv_list[row_index + 1]
-            if (len(last_row['PARENTAL ENCOURAGEMENT']) > 0):
-                # last row contains encouragement, increment Total encouragement and specific type of encouragement
-                encouragement_count["Total encouragement"] += 1
-                encouragement_count[last_row["TYPE"]] += 1
 
-            row_dictionary = {
-                'SUBJECT': row['SUBJECT'],
-                'DATE': row_date,
-                'PARENT': row['PARENT'],
-                'TOTAL ENCOURAGEMENT': encouragement_count["Total encouragement"],
-                'BRIBE': encouragement_count["Bribe"],
-                'DIRECT_INSTRUCTION': encouragement_count["Direct instruction"],
-                'THREAT': encouragement_count["Threat"],
-                'PRETEND_PLAY': encouragement_count["Pretend play"],
-                'CHEERING': encouragement_count["Cheering"],
-                'PRAISE': encouragement_count["Praise"],
-                'OTHER': encouragement_count["Other"],
-                'NOTES': notes
-            }
-
-            tracker_csv_writer.writerow(row_dictionary)
-
-leonard_summary_csv_path = ""
-leonard_tracker_csv_path = ""
 hunter_summary_csv_path = "/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/Teeth Brushing Coding - pilot4 Summary.csv"
 hunter_tracker_csv_path = "/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/Teeth Brushing Coding - Video Coding Tracker.csv"
 
