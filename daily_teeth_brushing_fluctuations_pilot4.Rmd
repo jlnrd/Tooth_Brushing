@@ -78,11 +78,10 @@ attach(data)
 ### Subject box plots
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-
+as.factor(subject)
 # plot individual brushing length
-brushing_length <- ggplot(data=data, mapping=aes(x=subject, y=time_brushing))
+brushing_length <- ggplot(data=data, mapping=aes(x=as.factor(subject), y=time_brushing))
 brushing_length +
   geom_boxplot() +
-  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
   labs(title="Individual Brushing Length", x="Subject",y="Brushing length (s)")
 ```
