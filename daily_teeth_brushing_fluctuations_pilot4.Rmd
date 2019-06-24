@@ -1,0 +1,88 @@
+---
+title: "Daily Fluctuations in Teeth Brushing Pilot 4"
+output: html_document
+---
+
+<style type="text/css">
+h1 {
+  font-size: 36px;
+  margin-top: 60px;
+  margin-bottom: 30px;
+}
+
+h2 {
+  font-size: 28px;
+
+}
+
+h3 {
+  font-size: 24px;
+  padding-top: 30px;
+  margin-bottom: 0px;
+  text-align: left !important;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+ font-size: 14px;
+}
+
+p {
+  font-size: 12px;
+  text-align: left;
+  line-height: 1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-align: center;
+  line-height: 1;
+}
+
+.p-text-align-right {
+  text-align: right !important;
+}
+
+</style>
+
+```{r, include=FALSE,warning=FALSE}
+# clean workspace
+rm(list=ls())
+
+# load required packages
+packages <- c("ggplot2", "ggpubr")
+lapply(packages, library, character.only = TRUE)
+
+# standardize ggplot2
+theme_set(theme_bw() + theme( plot.title = element_text(size=18, lineheight=1, margin=margin(b=15, t=30), hjust = 0.5),
+         axis.title.x = element_text(size=14, lineheight=1, margin=margin(t=15)),
+         axis.title.y = element_text(size=14, lineheight=1, margin=margin(r=15))))
+
+##################
+## read in data ##
+##################
+participant_background_information<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/parent_q_clean_n19.csv", header=TRUE)
+daily_fluctuations<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/pilot_041919_merged_n19.csv", header=TRUE)
+
+data<-merge(participant_background_information, daily_fluctuations, by="subject")
+# exclude subject 115
+data<-data[!grepl(115, data$subject),]
+
+# makes each "key" in the data object its own variable
+# Example: data$record_id is now record_id
+attach(data)
+```
+
+### Subject box plots
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+
+# plot individual brushing length
+brushing_length <- ggplot(data=data, mapping=aes(x=subject, y=time_brushing))
+brushing_length +
+  geom_boxplot() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  labs(title="Individual Brushing Length", x="Subject",y="Brushing length (s)")
+```
