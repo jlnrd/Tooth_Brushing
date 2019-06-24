@@ -78,10 +78,59 @@ attach(data)
 ### Subject box plots
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-as.factor(subject)
-# plot individual brushing length
+# plot subject brushing length
 brushing_length <- ggplot(data=data, mapping=aes(x=as.factor(subject), y=time_brushing))
 brushing_length +
   geom_boxplot() +
-  labs(title="Individual Brushing Length", x="Subject",y="Brushing length (s)")
+  stat_summary(fun.y="mean", geom="point", shape=9, size=3) +
+  labs(title="Subject Brushing Length", x="Subject",y="Brushing length (seconds)")
+  
+# plot subject sleep
+sleep_length <- ggplot(data=data, mapping=aes(x=as.factor(subject), y=time_sleep))
+sleep_length +
+  geom_boxplot() +
+  stat_summary(fun.y="mean", geom="point", shape=9, size=3) +
+  labs(title="Subject Sleep", x="Subject",y="Sleep (hours)")
+
+# plot subject's parent stress
+parent_stress <- ggplot(data=data, mapping=aes(x=as.factor(subject), y=parent_stress))
+parent_stress +
+  geom_boxplot() +
+  stat_summary(fun.y="mean", geom="point", shape=9, size=3) +
+  labs(title="Parent Stress", x="Subject",y="Parent stress level")
+```
+
+### Relationships between Brushing length, Sleep, and Parent Stress
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# plot brushing length vs. sleep
+brushing_length_vs_sleep <- ggplot(data=data, mapping=aes(x=time_sleep, y=time_brushing, color=as.factor(subject)))
+brushing_length_vs_sleep +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Brushing Length vs. Sleep", x="Sleep (hours)", y="Brushing length (seconds)", color="Subject")
+  
+# plot sleep vs. parent stress
+sleep_vs_parent_stress <- ggplot(data=data, mapping=aes(x=parent_stress, y=time_sleep, color=as.factor(subject)))
+sleep_vs_parent_stress +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Sleep vs. Parent Stress", x="Parent stress", y="Sleep (hours)", color="Subject")
+
+# plot brushing length vs. parent stress
+brushing_length_vs_parent_stress <- ggplot(data=data, mapping=aes(x=parent_stress, y=time_brushing, color=as.factor(subject)))
+brushing_length_vs_parent_stress +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Brushing Length vs. Parent Stress", x="Parent stress", y="Brushing length (seconds)", color="Subject")
+```
+
+### Daily Fluctuations Correlation Matrix
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# cbind() combines two matrices that have the same number of rows together
+combined_daily_fluctuating_variables<-cbind(time_brushing, encouragement, parent_stress, parent_mood, child_mood, time_sleep, time_sleep_nonap)
 ```
