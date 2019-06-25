@@ -186,10 +186,10 @@ average_stress_vs_parent_perceived_stress +
   Shows that Parent Perceived Stress (PPS) has a high correlation with average parent stress. This suggests that PPS is a good indicator of average stress that a parent will have.
 </p>
 
-### Possible Future Analysis
+### Possible Future Analysis  
 
-<p>
-  While subjects brushed their teeth, parents would sometimes get distracted by other siblings. The forced divide in how parents devote their time between children might influence brushing length, but finding a correlation may not lead to anything because there isn't a way to act on the finding. Also, with so few subjects with siblings, finding a statistically significant correlation between the number of siblings and brushing length may be too difficult for the current size of pilot studies.
+<p style="padding-top:30px;">
+  While subjects brushed their teeth, parents would sometimes get distracted by other siblings. The forced divide in how parents devote their time between children might influence brushing length, but finding a correlation may not lead to anything because there doesn't seem to be a way to act on the finding even if there was one. Also, with so few subjects with siblings, finding a statistically significant correlation between the number of siblings and brushing length may be too difficult for the size of the pilot studies.
 </p>
 
 <p>
@@ -197,7 +197,11 @@ average_stress_vs_parent_perceived_stress +
 </p>
 
 <p>
-  Because there were quite a few more encouragements catagorized as "other" in the fourth pilot, there could be an additional distinction between encouragement and engagement. Encouragement could include "praise", "cheering", and "bribe" while engagement would include "direct instruction", "threat", "pretend play", and "other". 
+  Because there were quite a few more encouragements catagorized as "other" in the fourth pilot, it may be beneficial to look at the relationship between brushing length and encouragement twice: one time with "other" encouragements and one time without "other" encouragements.
+</p>
+
+<p>
+  While the results from this pilot study did not seem to show a relationship between brushing length, child mood, and time asleep, combining a few factors might lead to better predictions of brushing length. For example, weighing encouragement, parent mood, and time asleep might correlate with brushing length. It would also be interesting to compare the daily fluctuations with the best and worst brushing length days similar to the Praise vs. Average group best and worst brushing night graph, but for all the daily variables.
 </p>
 <div style="height:60px;">
 </div>
