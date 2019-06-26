@@ -157,24 +157,46 @@ brushing_length_vs_parent_stress +
 ### Daily Fluctuations Correlation Matrix
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# find the averages of daily fluctations for each subject
+average_time_brushing <- with(data, ave(time_brushing, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_encouragement <- with(data, ave(encouragement, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_parent_stress <- with(data, ave(parent_stress, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_parent_mood <- with(data, ave(parent_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_child_mood <- with(data, ave(child_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_time_sleep <- with(data, ave(time_sleep, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_time_sleep_nonap <- with(data, ave(time_sleep_nonap, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+
 # cbind() combines two matrices that have the same number of rows together
-combined_daily_fluctuations <- cbind(time_brushing, encouragement, parent_stress, parent_mood, child_mood, time_sleep, time_sleep_nonap)
+combined_daily_fluctuations <- cbind(average_time_brushing, average_encouragement, average_parent_stress, average_parent_mood, average_child_mood, average_time_sleep, average_time_sleep_nonap)
 # graphing the correlation matrix
 # pch controls the type of point that is displayed in the scatter plots
 chart.Correlation(combined_daily_fluctuations, histogram=TRUE, pch=19)
 ```
 
 <p>
-  The time brushing and encouragement histograms match expectations because longer brushing length and greater parental encouragement occur less frequently than shorter brushing length and less parental encouragement. The 0.41 positive correlation between time brushing and encouragement is also statistically significant with a low p value. Meanwhile, parent stress and parent mood have the expected negative correlation shown by the frequencies of low parent stress and high parent mood. Parent mood and child mood have a positive correlation which connects the negative correlation between parent stress and child mood. Lastly, time spent sleeping (including naps) has a normal distribution which would be expected. However, there does not seem to be a relationship between time spent sleeping and brushing length.
+  The across subject correlation matrix suggests quite a few statistically significant correlations. Some of the mean positive correlations are relatively expected: brushing length and number of encouragements; parent mood and child mood; and number of encouragements and parent mood. Some of the mean negative correlations are relatively expected: encouragement and parent stress; parent stress and parent mood; and parent stress and child mood.
+  
+  However, some of the relationships are more novel and interesting. Although brushing length and parent stress have the expected negative correlation and brushing length and parent mood have the expected positive correlation, there doesn't seem to be a significant correlation between brushing length and child mood despite the connection between parent mood and child mood. In addition, child sleep has significant correlations with other daily fluctuations. 
+  
+  The most unexpected relationship is the negative correlation between brushing length and sleep which may be due to the large negative correlation between parent encouragement and child sleep. Assuming that parent encouragement connects with parent stress and parent mood, it's surprising that parent encouragement decreases with increasing child sleep despite parent mood increasing with child sleep. As a check, there is a positive correlation between child mood and child sleep as expected. One possible explanation is that parents don't believe that they need to be as engaged in encouragement when they know that their child has gotten plenty of sleep and has a relatively good mood. The parents' expectations that their child should be able to brush their teeth without their praise, cheering, instruction, etc. may cause them to become less involved and lead to the child brushing their teeth for a shorter amount of time. It would be very interesting to see if this pattern and the correlation between brushing length and child mood is similar in the fourth pilot.
+  
+  Because the parents submit the surveys after their child brushes their teeth, I would have expected that child mood would have correlated with brushing length. Since the parent likely recently finished watching their child brush their teeth, I thought that the parent might put more weight on the child's recent teeth brushing when determining the child's mood.
 </p>
 
-### Connecting Background Information and Daily Measurements
+### Connecting Background Information and Daily Measurements  
 
-```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-# include the average parent stress level to each row in data
-data$average_parent_stress <- with(data, ave(parent_stress, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+<div style="padding-top:30px;">
+
+```{r,warning=FALSE}
+
+# find the average parent stress for each subject
+average_parent_stress <- with(data, ave(parent_stress, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 # plot average stress level vs. parent perceived stress sum
 average_stress_vs_parent_perceived_stress <- ggplot(data=data, mapping=aes(x=pss_sum, y=average_parent_stress))
+
+```
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 average_stress_vs_parent_perceived_stress +
   stat_cor(method = "pearson",  size = 6) +
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
