@@ -4,3 +4,12 @@ virtual_environment
 data
 
 daily_teeth_brushing_fluctuations_pilot.html
+
+sleep_calculation.R
+
+individual_subject_graphs.R
+
+subject_brushing_plots
+
+finished_scripts/sleep_calculation.R
+finished_scripts/Teeth_pilot.Rmd
