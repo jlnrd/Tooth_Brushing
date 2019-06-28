@@ -1,0 +1,264 @@
+---
+title: "Daily Fluctuations in Teeth Brushing Pilot"
+output: html_document
+---
+
+<style type="text/css">
+h1 {
+  font-size: 36px;
+  margin-top: 60px;
+  margin-bottom: 30px;
+}
+
+h2 {
+  font-size: 28px;
+
+}
+
+h3 {
+  font-size: 24px;
+  padding-top: 30px;
+  margin-bottom: 0px;
+  text-align: left !important;
+}
+
+h4 {
+  font-size: 18px;
+}
+
+p {
+  font-size: 16px;
+  text-align: left;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-align: center;
+}
+
+.p-text-align-right {
+  text-align: right !important;
+}
+
+</style>
+
+```{r, include=FALSE,warning=FALSE}
+# clean workspace
+rm(list=ls())
+
+# load required packages
+packages <- c("ggplot2", "ggpubr", "PerformanceAnalytics", "dplyr")
+lapply(packages, library, character.only = TRUE)
+
+# standardize ggplot2
+theme_set(theme_bw() + theme( plot.title = element_text(size=18, lineheight=1, margin=margin(b=15, t=30), hjust = 0.5),
+         axis.title.x = element_text(size=14, lineheight=1, margin=margin(t=15)),
+         axis.title.y = element_text(size=14, lineheight=1, margin=margin(r=15))))
+
+##################
+## read in data ##
+##################
+subject_background_information<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/parent_q_clean_n19.csv", header=TRUE)
+daily_fluctuations<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/pilot_041919_merged_n19.csv", header=TRUE)
+
+# data<-merge(subject_background_information, daily_fluctuations, by="subject")
+# exclude subject 115
+daily_fluctuations<-filter(daily_fluctuations, subject!="115")
+subject_background_information<-filter(subject_background_information, subject!="115")
+
+# makes each "key" in the data object its own variable
+# Example: data$record_id is now record_id
+attach(daily_fluctuations)
+
+# find the overall participant information
+# find the averages of daily fluctuations for each subject
+average_time_brushing <- with(daily_fluctuations, ave(time_brushing, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_encouragement <- with(daily_fluctuations, ave(encouragement, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_parent_stress <- with(daily_fluctuations, ave(parent_stress, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_time_sleep <- with(daily_fluctuations, ave(time_sleep, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_parent_mood <- with(daily_fluctuations, ave(parent_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_child_mood <- with(daily_fluctuations, ave(child_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_time_sleep_nonap <- with(daily_fluctuations, ave(time_sleep_nonap, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+
+overall_subject <- data.frame("subject" = subject, "mean_time_brushing" = average_time_brushing, "mean_encouragement" = average_encouragement, "mean_parent_stress" = average_parent_stress, "mean_time_sleep" = average_time_sleep, "mean_parent_mood" = average_parent_mood, "mean_child_mood" = average_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap)
+
+overall_subject <- overall_subject[!duplicated(overall_subject$subject),]
+# remove subject from the overall_subject data.frame because it is masked from daily_fluctuations
+overall_subject <- overall_subject[,-1]
+# for now, just need pss sum from subject background information
+overall_subject <- cbind(overall_subject, subject_background_information %>% dplyr::select(pss_sum))
+```
+
+### Subject box plots
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# plot subject brushing length
+brushing_length_vs_subject <- ggplot(data=daily_fluctuations, mapping=aes(x=as.factor(subject), y=time_brushing))
+brushing_length_vs_subject +
+  geom_boxplot() +
+  stat_summary(fun.y="mean", geom="point", shape=9, size=3) +
+  labs(title="Subject Brushing Length", x="Subject",y="Brushing length (seconds)")
+```  
+
+<p>
+  Some subjets (101, 102, 104, 106, 110, 113, 116, 118) have large differences in brushing length between days which is shown by the large difference between the third and first quartile. Other subjects like 100, 112, 114, and 117 have smaller interquartile ranges, suggesting that their brushing lengths do not vary as much.
+</p>
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# plot subject sleep
+sleep_length_vs_subject <- ggplot(data=daily_fluctuations, mapping=aes(x=as.factor(subject), y=time_sleep))
+sleep_length_vs_subject +
+  geom_boxplot() +
+  stat_summary(fun.y="mean", geom="point", shape=9, size=3) +
+  labs(title="Subject Sleep", x="Subject",y="Sleep (hours)")
+```
+
+<p>
+  The majority of subjects also seem to vary in the amount of sleep they get, ranging from about 9 to 13 hours with the exception of subject 103 who had a relatively stable 11.5 hours of sleep with a few exceptions.
+</p>
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# plot subject's parent stress
+parent_stress_vs_subject <- ggplot(data=daily_fluctuations, mapping=aes(x=as.factor(subject), y=parent_stress))
+parent_stress_vs_subject +
+  geom_boxplot() +
+  stat_summary(fun.y="mean", geom="point", shape=9, size=3) +
+  labs(title="Parent Stress", x="Subject",y="Parent stress level")
+```
+
+<p>
+  Similar to child sleep length, parent stress level varies from day to day with the exception of subject 106's parent. Note: this only accounts for the stress level of the parent submitting the survey.
+</p>
+
+### Within Subject Relationships between Brushing length, Sleep, and Parent Stress
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# plot brushing length vs. sleep
+within_subject_brushing_length_vs_sleep <- ggplot(data=daily_fluctuations, mapping=aes(x=time_sleep, y=time_brushing, color=as.factor(subject)))
+within_subject_brushing_length_vs_sleep +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Brushing Length vs. Sleep", x="Sleep (hours)", y="Brushing length (seconds)", color="Subject")
+```
+
+<p>
+  Despite the expected relationship between brushing length and amount of sleep, only a few subject's brushing length significantly correlated with their sleep. Subjects 105 and 114 almost have statistically significant correlations, but subject 105's correlation is positive while subject 114's is negative. Subjects 117 and 118 have a p value < 0.05, but while subject 117 has a high positive correlation, subject 118 has a negative correlation. There doesn't seem to be a clear relationship between brushing length and sleep, atleast within this pilot study.
+</p>
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# plot child sleep vs. parent stress
+within_subject_child_sleep_vs_parent_stress <- ggplot(data=daily_fluctuations, mapping=aes(x=parent_stress, y=time_sleep, color=as.factor(subject)))
+within_subject_child_sleep_vs_parent_stress +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Child Sleep vs. Parent Stress", x="Parent stress", y=" Child sleep (hours)", color="Subject")
+```
+
+<p>
+  Subjects 101, 110, and 114 have a p value < 0.05, and although subjects 101 and 114 have large negative correlations between parent stress and child sleep, subject 110 has a large positive correlation between child sleep and parent stress. Similar to brushing length, there doesn't seem to be a significant relationship between child sleep and parent stress.
+</p>
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# plot brushing length vs. parent stress
+within_subject_brushing_length_vs_parent_stress <- ggplot(data=daily_fluctuations, mapping=aes(x=parent_stress, y=time_brushing, color=as.factor(subject)))
+within_subject_brushing_length_vs_parent_stress +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Brushing Length vs. Parent Stress", x="Parent stress", y="Brushing length (seconds)", color="Subject")
+```
+
+<p>
+  Although subjects 101, 106, and 107 have a p value between 0.05 and 0.10 and subject 110 has a p value < 0.05, the relationship is unclear because subject 101's positive correlation between brushing length and parent stress contrasts the other subjects' negative correlation between brushing length and parent stress.
+</p>
+
+### Between Subject Relationships between Brushing length, Sleep, Encouragement, and Parent Stress
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# plot brushing length vs. child sleep
+between_subject_brushing_length_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_time_brushing))
+between_subject_brushing_length_vs_child_sleep +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Brushing Length vs. Child Sleep", x="Child sleep (hours)", y="Brushing length (seconds)")
+
+# plot brushing length vs. encouragement
+between_subject_brushing_length_vs_encouragement <- ggplot(data=overall_subject, mapping=aes(x=mean_encouragement, y=mean_time_brushing))
+between_subject_brushing_length_vs_encouragement +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Brushing Length vs. Encouragement", x="Encouragement", y="Brushing length (seconds)")
+
+# plot encouragement vs. child sleep
+between_subject_encouragement_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_encouragement))
+between_subject_encouragement_vs_child_sleep +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Encouragement vs. Child Sleep", x="Child sleep (hours)", y="Encouragement")
+
+# plot parent stress vs. child sleep
+between_subject_parent_stress_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_parent_stress))
+between_subject_parent_stress_vs_child_sleep +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Parent Stress vs. Child Sleep", x="Child sleep (hours)", y="Parent stress")
+```
+
+### Daily Fluctuations Correlation Matrix
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+attach(overall_subject)
+# cbind() combines two matrices that have the same number of rows together
+combined_daily_fluctuations <- cbind(mean_time_brushing, mean_encouragement, mean_parent_stress, mean_parent_mood, mean_child_mood, mean_time_sleep, mean_time_sleep_nonap)
+detach(overall_subject)
+
+# graphing the correlation matrix
+# pch controls the type of point that is displayed in the scatter plots
+chart.Correlation(combined_daily_fluctuations, histogram=TRUE, pch=19)
+```
+
+<p>
+  Unfortunately, there is not a statistically significant relationship between brushing length and time sleeping in this pilot study. However, there is the expected negative correlation between average parent stress and average parent mood and an expected positive correlation between average brushing length and parental encouragement.
+</p>
+
+### Connecting Background Information and Daily Measurements  
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# plot average stress level vs. parent perceived stress sum
+average_stress_vs_parent_perceived_stress <- ggplot(data=overall_subject, mapping=aes(x=pss_sum, y=mean_parent_stress))
+
+average_stress_vs_parent_perceived_stress +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Average Stress vs. Parent Perceived Stress Sum", x="Parent perceived stress sum", y="Average stress")
+```
+
+<p>
+  Shows that Parent Perceived Stress (PPS) does not have a statistically significant correlation with average parent stress. This suggests that PPS is not a very good indicator of average stress that a parent will have.
+</p>
+
+### Possible Future Analysis  
+
+<p style="padding-top:30px;">
+  While subjects brushed their teeth, parents would sometimes get distracted by other siblings. The forced divide in how parents devote their time between children might influence brushing length, but finding a correlation may not lead to anything because there doesn't seem to be a way to act on the finding even if there was one. Also, with so few subjects with siblings, finding a statistically significant correlation between the number of siblings and brushing length may be too difficult for the size of the pilot studies.
+</p>
+
+<p>
+  For the fourth pilot, the subject and parent's moods seemed to affect the brushing length. This contrasts the lack of a relationship between the subject and parent's moods on brushing length in the given pilot study data. 
+</p>
+
+<p>
+  Because there were quite a few more encouragements catagorized as "other" in the fourth pilot, it may be beneficial to look at the relationship between brushing length and encouragement twice: one time with "other" encouragements and one time without "other" encouragements.
+</p>
+
+<p>
+  While the results from this pilot study did not seem to show a relationship between brushing length, child mood, and time asleep, combining a few factors might lead to better predictions of brushing length. For example, weighing encouragement, parent mood, and time asleep might correlate with brushing length. It would also be interesting to compare the daily fluctuations with the best and worst brushing length days similar to the Praise vs. Average group best and worst brushing night graph, but for all the daily variables.
+</p>
+<div style="height:60px;">
+</div>
