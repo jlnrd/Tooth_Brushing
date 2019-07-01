@@ -69,19 +69,19 @@ attach(daily_fluctuations)
 # find the overall participant information
 # find the averages of daily fluctuations for each subject
 average_time_brushing <- with(daily_fluctuations, ave(time_brushing, subject, FUN=function(x) mean(x, na.rm=TRUE)))
-average_encouragement <- with(daily_fluctuations, ave(encouragement, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+average_encouragements <- with(daily_fluctuations, ave(total_encouragements, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 average_parent_stress <- with(daily_fluctuations, ave(parent_stress, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 average_time_sleep <- with(daily_fluctuations, ave(time_sleep, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 average_parent_mood <- with(daily_fluctuations, ave(parent_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 average_child_mood <- with(daily_fluctuations, ave(child_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 average_time_sleep_nonap <- with(daily_fluctuations, ave(time_sleep_nonap, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 
-overall_subject <- data.frame("subject" = subject, "mean_time_brushing" = average_time_brushing, "mean_encouragement" = average_encouragement, "mean_parent_stress" = average_parent_stress, "mean_time_sleep" = average_time_sleep, "mean_parent_mood" = average_parent_mood, "mean_child_mood" = average_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap)
+overall_subject <- data.frame("subject" = subject, "mean_time_brushing" = average_time_brushing, "mean_encouragements" = average_encouragements, "mean_parent_stress" = average_parent_stress, "mean_time_sleep" = average_time_sleep, "mean_parent_mood" = average_parent_mood, "mean_child_mood" = average_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap)
 
 overall_subject <- overall_subject[!duplicated(overall_subject$subject),]
 
-# has unusually high child mood and encouragement
-overall_subject<-filter(overall_subject, subject!="101")
+# has unusually high child mood and encouragements
+# overall_subject<-filter(overall_subject, subject!="101")
 
 # remove subject from the overall_subject data.frame because it is masked from daily_fluctuations
 overall_subject <- overall_subject[,-1]
@@ -122,17 +122,17 @@ parent_stress_vs_subject +
 # plot brushing length vs. sleep
 within_subject_brushing_length_vs_sleep <- ggplot(data=daily_fluctuations, mapping=aes(x=time_sleep, y=time_brushing, color=as.factor(subject)))
 within_subject_brushing_length_vs_sleep +
-  stat_cor(method = "pearson",  size = 6) +
+  stat_cor(method = "pearson",  size = 6, show.legend = FALSE) +
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
   geom_point(shape=1) +
-  labs(title="Brushing Length vs. Sleep", x="Sleep (hours)", y="Brushing length (seconds)", color="Subject")
+  labs(title="Brushing Length vs. Sleep", x="Sleep (hours)", y="Brushing length (seconds)", color="Subject") 
 ```
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 # plot child sleep vs. parent stress
 within_subject_child_sleep_vs_parent_stress <- ggplot(data=daily_fluctuations, mapping=aes(x=parent_stress, y=time_sleep, color=as.factor(subject)))
 within_subject_child_sleep_vs_parent_stress +
-  stat_cor(method = "pearson",  size = 6) +
+  stat_cor(method = "pearson",  size = 6, show.legend = FALSE) +
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
   geom_point(shape=1) +
   labs(title="Child Sleep vs. Parent Stress", x="Parent stress", y=" Child sleep (hours)", color="Subject")
@@ -142,7 +142,7 @@ within_subject_child_sleep_vs_parent_stress +
 # plot brushing length vs. parent stress
 within_subject_brushing_length_vs_parent_stress <- ggplot(data=daily_fluctuations, mapping=aes(x=parent_stress, y=time_brushing, color=as.factor(subject)))
 within_subject_brushing_length_vs_parent_stress +
-  stat_cor(method = "pearson",  size = 6) +
+  stat_cor(method = "pearson",  size = 6, show.legend = FALSE) +
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
   geom_point(shape=1) +
   labs(title="Brushing Length vs. Parent Stress", x="Parent stress", y="Brushing length (seconds)", color="Subject")
@@ -151,25 +151,25 @@ within_subject_brushing_length_vs_parent_stress +
 ### Between Subject Relationships between Brushing length, Sleep, Encouragement, and Parent Stress
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-# plot encouragement vs. child mood
-between_subject_encouragement_vs_child_mood <- ggplot(data=overall_subject, mapping=aes(x=mean_child_mood, y=mean_encouragement))
-between_subject_encouragement_vs_child_mood +
+# plot encouragements vs. child mood
+between_subject_encouragements_vs_child_mood <- ggplot(data=overall_subject, mapping=aes(x=mean_child_mood, y=mean_encouragements))
+between_subject_encouragements_vs_child_mood +
   stat_cor(method = "pearson",  size = 6) +
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
   geom_point(shape=1) +
   labs(title="Encouragement vs. Child Mood", x="Child mood", y="Encouragement")
 
-# # plot brushing length vs. encouragement
-# between_subject_brushing_length_vs_encouragement <- ggplot(data=overall_subject, mapping=aes(x=mean_encouragement, y=mean_time_brushing))
-# between_subject_brushing_length_vs_encouragement +
+# # plot brushing length vs. encouragements
+# between_subject_brushing_length_vs_encouragements <- ggplot(data=overall_subject, mapping=aes(x=mean_encouragements, y=mean_time_brushing))
+# between_subject_brushing_length_vs_encouragements +
 #   stat_cor(method = "pearson",  size = 6) +
 #   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
 #   geom_point(shape=1) +
 #   labs(title="Brushing Length vs. Encouragement", x="Encouragement", y="Brushing length (seconds)")
 # 
-# # plot encouragement vs. child sleep
-# between_subject_encouragement_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_encouragement))
-# between_subject_encouragement_vs_child_sleep +
+# # plot encouragements vs. child sleep
+# between_subject_encouragements_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_encouragements))
+# between_subject_encouragements_vs_child_sleep +
 #   stat_cor(method = "pearson",  size = 6) +
 #   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
 #   geom_point(shape=1) +
@@ -189,7 +189,7 @@ between_subject_encouragement_vs_child_mood +
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 attach(overall_subject)
 # cbind() combines two matrices that have the same number of rows together
-combined_daily_fluctuations <- cbind(mean_time_brushing, mean_encouragement, mean_parent_stress, mean_parent_mood, mean_child_mood, mean_time_sleep, mean_time_sleep_nonap)
+combined_daily_fluctuations <- cbind(mean_time_brushing, mean_encouragements, mean_parent_stress, mean_parent_mood, mean_child_mood, mean_time_sleep, mean_time_sleep_nonap)
 detach(overall_subject)
 
 # graphing the correlation matrix
