@@ -59,8 +59,10 @@ theme_set(theme_bw() + theme( plot.title = element_text(size=18, lineheight=1, m
 ##################
 daily_fluctuations<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/clean_pilot_n28.csv", header=TRUE)
 
+valid_subjects <- c('119', '120', '121', '123', '124', '125', '127')
+invalid_dates <- c('6/10/19', '6/11/19')
 # take out all of the bad data
-daily_fluctuations<-filter(daily_fluctuations, subject!="115", serious_other_factors=="0", !is.na(time_brushing))
+daily_fluctuations<-filter(daily_fluctuations, !(subject %in% valid_subjects), !(date %in% invalid_dates), serious_other_factors=="0", !is.na(time_brushing))
 
 # makes each "key" in the data object its own variable
 # Example: data$record_id is now record_id
@@ -81,10 +83,10 @@ overall_subject <- data.frame("subject" = subject, "mean_time_brushing" = averag
 overall_subject <- overall_subject[!duplicated(overall_subject$subject),]
 
 # has unusually high child mood and encouragements
-# overall_subject<-filter(overall_subject, subject!="101")
+# overall_subject<-filter(overall_subject, subject!="120")
 
 # remove subject from the overall_subject data.frame because it is masked from daily_fluctuations
-overall_subject <- overall_subject[,-1]
+# overall_subject <- overall_subject[,-1]
 ```
 
 ### Subject box plots
@@ -151,37 +153,29 @@ within_subject_brushing_length_vs_parent_stress +
 ### Between Subject Relationships between Brushing length, Sleep, Encouragement, and Parent Stress
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-# plot encouragements vs. child mood
-between_subject_encouragements_vs_child_mood <- ggplot(data=overall_subject, mapping=aes(x=mean_child_mood, y=mean_encouragements))
-between_subject_encouragements_vs_child_mood +
+# plot encouragements vs. child sleep
+between_subject_encouragements_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_encouragements))
+between_subject_encouragements_vs_child_sleep +
   stat_cor(method = "pearson",  size = 6) +
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
   geom_point(shape=1) +
-  labs(title="Encouragement vs. Child Mood", x="Child mood", y="Encouragement")
+  labs(title="Encouragement vs. Child Sleep", x="Child sleep (hours)", y="Encouragement")
 
-# # plot brushing length vs. encouragements
-# between_subject_brushing_length_vs_encouragements <- ggplot(data=overall_subject, mapping=aes(x=mean_encouragements, y=mean_time_brushing))
-# between_subject_brushing_length_vs_encouragements +
-#   stat_cor(method = "pearson",  size = 6) +
-#   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-#   geom_point(shape=1) +
-#   labs(title="Brushing Length vs. Encouragement", x="Encouragement", y="Brushing length (seconds)")
-# 
-# # plot encouragements vs. child sleep
-# between_subject_encouragements_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_encouragements))
-# between_subject_encouragements_vs_child_sleep +
-#   stat_cor(method = "pearson",  size = 6) +
-#   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-#   geom_point(shape=1) +
-#   labs(title="Encouragement vs. Child Sleep", x="Child sleep (hours)", y="Encouragement")
-# 
-# # plot parent stress vs. child sleep
-# between_subject_parent_stress_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_parent_stress))
-# between_subject_parent_stress_vs_child_sleep +
-#   stat_cor(method = "pearson",  size = 6) +
-#   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-#   geom_point(shape=1) +
-#   labs(title="Parent Stress vs. Child Sleep", x="Child sleep (hours)", y="Parent stress")
+# plot parent mood vs. parent stress
+between_subject_parent_mood_vs_parent_stress <- ggplot(data=overall_subject, mapping=aes(x=mean_parent_stress, y=mean_parent_mood))
+between_subject_parent_mood_vs_parent_stress +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Parent Mood vs. Parent Stress", x="Parent stress", y="Parent mood")
+
+# plot brushing length vs. encouragements 
+between_subject_brushing_length_vs_encouragements <- ggplot(data=overall_subject, mapping=aes(x=mean_encouragements, y=mean_time_brushing))
+between_subject_brushing_length_vs_encouragements +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Brushing Length vs. Encouragements", x="Encouragements", y="Brushing length")
 ```
 
 ### Daily Fluctuations Correlation Matrix
@@ -196,5 +190,11 @@ detach(overall_subject)
 # pch controls the type of point that is displayed in the scatter plots
 chart.Correlation(combined_daily_fluctuations, histogram=TRUE, pch=19)
 ```
+### Possible Findings
+
+<p>
+  When plotting the median encouragement and child time asleep, there is a pretty significant correlation: -0.38. This might cause the brushing time to decrease, but because there isn't a significant correlation between brushing length and encouragements, it's not very conclusive.
+</p>
+
 <div style="height:60px;">
 </div>
