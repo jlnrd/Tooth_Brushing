@@ -6,38 +6,33 @@ import re
 txt_path = "/Volumes/Julia_HardDrive/Teeth_Brushing/pilot_txts/"
 
 list_of_txt_folders_to_inspect = [
-    "100_recoded"
+    "100_recoded",
+    "101_txt",
+    "102_txt",
+    "104_txt",
+    "105_txt",
+    "106_txt",
+    "107_txt",
+    "108_txt",
+    "109_txt",
+    "110_recoded",
+    "111_txt",
+    "112_txt",
+    "113_txt",
+    "114_txt",
+    "115_txt",
+    "116_txt",
+    "117_txt",
+    "118_txt",
+    "119",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "127",
 ]
-
-# list_of_txt_folders_to_inspect = [
-#     "100_recoded",
-#     "101_txt",
-#     "102_txt",
-#     "103_txt",
-#     "104_txt",
-#     "105_txt",
-#     "106_txt",
-#     "107_txt",
-#     "108_txt",
-#     "109_txt",
-#     "110_recoded",
-#     "111_txt",
-#     "112_txt",
-#     "113_txt",
-#     "114_txt",
-#     "115_txt",
-#     "116_txt",
-#     "117_txt",
-#     "118_txt",
-#     "119",
-#     "120",
-#     "121",
-#     "122",
-#     "123",
-#     "124",
-#     "125",
-#     "127",
-# ]
 
 coding_duplicates_dictionary = {}
 
@@ -49,25 +44,25 @@ for subject_txt_folder in list_of_txt_folders_to_inspect:
     # beginning_brush_timebrushing_length
     # Note: not adding the numbers together, just putting them right next to each other
     for subject_txt_file in list_of_subject_txt_files:
-        # open the txt file
-        open_subject_txt_file = open(txt_path+subject_txt_folder+"/"+subject_txt_file)
+        if subject_txt_file.endswith('.txt'):
+            # sometimes there is a .DS_store file, only want to open txt files
+            open_subject_txt_file = open(txt_path+subject_txt_folder+"/"+subject_txt_file)
+            # separating the txt file by line
+            open_subject_txt_file_lines = open_subject_txt_file.readlines()
 
-        # separating the txt file by line
-        open_subject_txt_file_lines = open_subject_txt_file.readlines()
-
-        # go through each line and take out all of the numbers
-        for open_subject_txt_file_line in open_subject_txt_file_lines:
-            list_of_numbers_in_line = re.findall(r'\d+', open_subject_txt_file_line)
-            if len(list_of_numbers_in_line) == 2:
-                # contains start and length of teeth brushing
-                key = list_of_numbers_in_line[0] + list_of_numbers_in_line[1]
-                if key in coding_duplicates_dictionary:
-                    # increment the number of times this code has been duplicated
-                    # and add which subject txt file this is
-                    coding_duplicates_dictionary[key][0] += 1
-                    coding_duplicates_dictionary[key][1].append(subject_txt_file)
-                else:
-                    coding_duplicates_dictionary[key] = [0, [subject_txt_file]]
+            # go through each line and take out all of the numbers
+            for open_subject_txt_file_line in open_subject_txt_file_lines:
+                list_of_numbers_in_line = re.findall(r'\d+', open_subject_txt_file_line)
+                if len(list_of_numbers_in_line) == 2:
+                    # contains start and length of teeth brushing
+                    key = list_of_numbers_in_line[0] + list_of_numbers_in_line[1]
+                    if key in coding_duplicates_dictionary:
+                        # increment the number of times this code has been duplicated
+                        # and add which subject txt file this is
+                        coding_duplicates_dictionary[key][0] += 1
+                        coding_duplicates_dictionary[key][1].append(subject_txt_file)
+                    else:
+                        coding_duplicates_dictionary[key] = [0, [subject_txt_file]]
 
 # filled the coding_duplicates_dictionary, for loop to find the coding duplicates
 for brushing in coding_duplicates_dictionary:
