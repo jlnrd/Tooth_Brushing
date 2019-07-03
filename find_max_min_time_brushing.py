@@ -72,25 +72,3 @@ elif last_row_time_brushing < worst_brushing[1]:
 best_brushing_date = best_brushing[0]
 worst_brushing_date = worst_brushing[0]
 best_worst_dictionary[subject] = {best_brushing_date: "best", worst_brushing_date: "worst"}
-
-# # go through each subject and find their best/worst brushing date
-# for subject in time_brushing_dictionary:
-#     # Note: best_brushing and worst_brushing contains [date, time_brushing]
-#     best_brushing = []
-#     worst_brushing = []
-#     # go through each date and compare the time brushing
-#     for date in time_brushing_dictionary[subject]:
-#         if first_two_invalid_dates[date] == 0:
-#             # don't consider the time brushing from this day
-#             continue
-#         else:
-#             # valid date to compare
-
-
-# # overwrite the old clean updated file with the new rows
-# fieldnames = ['0', 'subject', 'date', 'time_pm', 'nap', 'nap_length', 'time_last_meal', 'amount_eat', 'child_mood', 'parent_mood', 'parent_stress', 'fussy_pm', 'other_factors', 'serious_other_factors', 'teeth_time', 'bed_time', 'time_am', 'wakeup_time', 'wakeup_night', 'times_wakeup_night', 'minutes_wakeup_night', 'fussy_am', 'day', 'wake', 'bed', 'min_up_night', 'time_sleep_nonap', 'time_sleep', 'time_meal', 'timebrush', 'time_since_meal', 'time_brushing', 'parent', 'total_utterances', 'bribe', 'direct_instruction', 'threat', 'pretend_play', 'cheering', 'praise', 'other', 'total_encouragements', 'Day_week', 'brushing_rank', 'study_version']
-#
-# # w for writer mode
-# clean_updated_csv_writer = csv.DictWriter(open(clean_updated_csv_path, 'w'), fieldnames=fieldnames)
-# clean_updated_csv_writer.writeheader()
-# clean_updated_csv_writer.writerows(new_clean_updated_csv_rows)
