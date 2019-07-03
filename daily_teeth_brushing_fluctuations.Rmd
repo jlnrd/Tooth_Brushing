@@ -57,12 +57,13 @@ theme_set(theme_bw() + theme( plot.title = element_text(size=18, lineheight=1, m
 ##################
 ## read in data ##
 ##################
-daily_fluctuations<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/clean_pilot_n28.csv", header=TRUE)
+daily_fluctuations<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/clean_updated_brushing.csv", header=TRUE)
 
-valid_subjects <- c('119', '120', '121', '123', '124', '125', '127')
-invalid_dates <- c('6/10/19', '6/11/19')
+# valid_subjects <- c('119', '120', '121', '123', '124', '125', '127')
+invalid_dates <- c('1/31/19', '2/1/19', '2/28/19', '3/1/19', '3/21/19', '3/22/19', '4/3/19', '4/4/19', '6/10/19', '6/11/19')
 # take out all of the bad data
-daily_fluctuations<-filter(daily_fluctuations, !(subject %in% valid_subjects), !(date %in% invalid_dates), serious_other_factors=="0", !is.na(time_brushing))
+# uncomment if want to include specific subjects: `!(subject %in% valid_subjects)`
+daily_fluctuations<-filter(daily_fluctuations, !(date %in% invalid_dates), serious_other_factors=="0", !is.na(time_brushing))
 
 # makes each "key" in the data object its own variable
 # Example: data$record_id is now record_id
@@ -82,11 +83,8 @@ overall_subject <- data.frame("subject" = subject, "mean_time_brushing" = averag
 
 overall_subject <- overall_subject[!duplicated(overall_subject$subject),]
 
-# has unusually high child mood and encouragements
-# overall_subject<-filter(overall_subject, subject!="120")
-
 # remove subject from the overall_subject data.frame because it is masked from daily_fluctuations
-# overall_subject <- overall_subject[,-1]
+overall_subject <- overall_subject[,-1]
 ```
 
 ### Subject box plots
@@ -191,10 +189,6 @@ detach(overall_subject)
 chart.Correlation(combined_daily_fluctuations, histogram=TRUE, pch=19)
 ```
 ### Possible Findings
-
-<p>
-  When plotting the median encouragement and child time asleep, there is a pretty significant correlation: -0.38. This might cause the brushing time to decrease, but because there isn't a significant correlation between brushing length and encouragements, it's not very conclusive.
-</p>
 
 <div style="height:60px;">
 </div>

@@ -12,7 +12,6 @@ new_clean_updated_csv_rows = []
 
 # go through each row of the csv
 for old_row in clean_updated_csv_list:
-    print('old_row = ', old_row)
     # copy over the data to a variable
     new_row = old_row
     row_subject = new_row['subject']
