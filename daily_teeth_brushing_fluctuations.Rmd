@@ -61,9 +61,9 @@ daily_fluctuations<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brush
 
 # valid_subjects <- c('119', '120', '121', '123', '124', '125', '127')
 invalid_dates <- c('1/31/19', '2/1/19', '2/28/19', '3/1/19', '3/21/19', '3/22/19', '4/3/19', '4/4/19', '6/10/19', '6/11/19')
-# take out all of the bad data
+# take out all of the data from the first two days of the study, any data from an unusual day, and any data wehre there was no survey submitted for that day 
 # uncomment if want to include specific subjects: `!(subject %in% valid_subjects)`
-daily_fluctuations<-filter(daily_fluctuations, !(date %in% invalid_dates), serious_other_factors=="0", !is.na(time_brushing))
+daily_fluctuations<-filter(daily_fluctuations, !(date %in% invalid_dates), serious_other_factors=="0", !is.na(parent_stress))
 
 # makes each "key" in the data object its own variable
 # Example: data$record_id is now record_id
@@ -79,12 +79,9 @@ average_parent_mood <- with(daily_fluctuations, ave(parent_mood, subject, FUN=fu
 average_child_mood <- with(daily_fluctuations, ave(child_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 average_time_sleep_nonap <- with(daily_fluctuations, ave(time_sleep_nonap, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 
-overall_subject <- data.frame("subject" = subject, "mean_time_brushing" = average_time_brushing, "mean_encouragements" = average_encouragements, "mean_parent_stress" = average_parent_stress, "mean_time_sleep" = average_time_sleep, "mean_parent_mood" = average_parent_mood, "mean_child_mood" = average_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap)
+overall_subject <- data.frame("subject_ID" = subject, "mean_time_brushing" = average_time_brushing, "mean_encouragements" = average_encouragements, "mean_parent_stress" = average_parent_stress, "mean_time_sleep" = average_time_sleep, "mean_parent_mood" = average_parent_mood, "mean_child_mood" = average_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap)
 
-overall_subject <- overall_subject[!duplicated(overall_subject$subject),]
-
-# remove subject from the overall_subject data.frame because it is masked from daily_fluctuations
-# overall_subject <- overall_subject[,-1]
+overall_subject <- overall_subject[!duplicated(overall_subject$subject_ID),]
 ```
 
 ### Subject box plots
@@ -207,8 +204,19 @@ detach(overall_subject)
 # pch controls the type of point that is displayed in the scatter plots
 chart.Correlation(combined_daily_fluctuations, histogram=TRUE, pch=19)
 ```
+
 ### Looking at Child Brushing Extremes
 
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+worst_time_brushing<-filter(daily_fluctuations, brushing_rank=="worst")
+best_time_brushing<-filter(daily_fluctuations, brushing_rank=="best")
+
+between_subject_worst_brushing_sleep_vs_mean_sleep <- ggplot()
+between_subject_worst_brushing_sleep_vs_mean_sleep +
+  geom_point(data=overall_subject, aes(x=subject_ID, y=mean_time_sleep), shape=5, size=4) +
+  geom_point(data=worst_time_brushing, aes(x=subject, y=time_sleep), shape=1, size=4) +
+  labs(title="Subject Worst Night Brushing Sleep vs. Average Sleep", x="Subject", y="Child sleep (hours)", color="Sleep")
+```
 
 <div style="height:60px;">
 </div>
