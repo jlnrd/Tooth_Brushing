@@ -49,8 +49,16 @@ for row_index in range(0, len(clean_updated_csv_list)-1):
                 # adjust worst_brushing time
                 worst_brushing = [row_date, time_brushing]
         else:
-            # different subject, need to add the best and worst brushing to the
-            # best_worst_dictionary
+            # next subject is different, need to add the best and worst brushing
+            # to the best_worst_dictionary after checking comparing this row's
+            # time_brushing
+            if time_brushing > best_brushing[1]:
+                # adjust best_brushing time
+                best_brushing = [row_date, time_brushing]
+            elif time_brushing < worst_brushing[1]:
+                # adjust worst_brushing time
+                worst_brushing = [row_date, time_brushing]
+
             best_worst_dictionary[subject] = {best_brushing[0]: "best", worst_brushing[0]: "worst"}
 
             # reset best and worst brushing
@@ -72,3 +80,5 @@ elif last_row_time_brushing < worst_brushing[1]:
 best_brushing_date = best_brushing[0]
 worst_brushing_date = worst_brushing[0]
 best_worst_dictionary[subject] = {best_brushing_date: "best", worst_brushing_date: "worst"}
+
+# print('best_worst_dictionary = ', best_worst_dictionary)

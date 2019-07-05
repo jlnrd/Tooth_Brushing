@@ -84,7 +84,7 @@ overall_subject <- data.frame("subject" = subject, "mean_time_brushing" = averag
 overall_subject <- overall_subject[!duplicated(overall_subject$subject),]
 
 # remove subject from the overall_subject data.frame because it is masked from daily_fluctuations
-overall_subject <- overall_subject[,-1]
+# overall_subject <- overall_subject[,-1]
 ```
 
 ### Subject box plots
@@ -148,24 +148,11 @@ within_subject_brushing_length_vs_parent_stress +
   labs(title="Brushing Length vs. Parent Stress", x="Parent stress", y="Brushing length (seconds)", color="Subject")
 ```
 
-### Between Subject Relationships between Brushing length, Sleep, Encouragement, and Parent Stress
+### Between Subject Relationships
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-# plot encouragements vs. child sleep
-between_subject_encouragements_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_encouragements))
-between_subject_encouragements_vs_child_sleep +
-  stat_cor(method = "pearson",  size = 6) +
-  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-  geom_point(shape=1) +
-  labs(title="Encouragement vs. Child Sleep", x="Child sleep (hours)", y="Encouragement")
-
-# plot parent mood vs. parent stress
-between_subject_parent_mood_vs_parent_stress <- ggplot(data=overall_subject, mapping=aes(x=mean_parent_stress, y=mean_parent_mood))
-between_subject_parent_mood_vs_parent_stress +
-  stat_cor(method = "pearson",  size = 6) +
-  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-  geom_point(shape=1) +
-  labs(title="Parent Mood vs. Parent Stress", x="Parent stress", y="Parent mood")
+# has unusually data
+# overall_subject<-filter(overall_subject, subject!="120", subject!="101")
 
 # plot brushing length vs. encouragements 
 between_subject_brushing_length_vs_encouragements <- ggplot(data=overall_subject, mapping=aes(x=mean_encouragements, y=mean_time_brushing))
@@ -174,6 +161,38 @@ between_subject_brushing_length_vs_encouragements +
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
   geom_point(shape=1) +
   labs(title="Brushing Length vs. Encouragements", x="Encouragements", y="Brushing length")
+
+# plot brushing length vs. child sleep
+between_subject_brushing_length_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_time_brushing))
+between_subject_brushing_length_vs_child_sleep +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Brushing Length vs. Child Sleep", x="Child sleep (hours)", y="Brushing length (seconds)")
+
+# plot brushing length vs. child mood
+between_subject_brushing_length_vs_child_mood <- ggplot(data=overall_subject, mapping=aes(x=mean_child_mood, y=mean_time_brushing))
+between_subject_brushing_length_vs_child_mood +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Brushing Length vs. Child Mood", x="Child sleep mood", y="Brushing length (seconds)")
+
+# plot encouragements vs. child sleep
+between_subject_encouragements_vs_time_sleep <- ggplot(data=overall_subject, mapping=aes(x=mean_time_sleep, y=mean_encouragements))
+between_subject_encouragements_vs_time_sleep +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Encouragement vs. Child sleep", x="Child sleep (hours)", y="Encouragement")
+
+# plot encouragements vs. child mood
+between_subject_encouragements_vs_child_mood <- ggplot(data=overall_subject, mapping=aes(x=mean_child_mood, y=mean_encouragements))
+between_subject_encouragements_vs_child_mood +
+  stat_cor(method = "pearson",  size = 6) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  geom_point(shape=1) +
+  labs(title="Encouragement vs. Child Mood", x="Child mood", y="Encouragement")
 ```
 
 ### Daily Fluctuations Correlation Matrix
@@ -188,7 +207,8 @@ detach(overall_subject)
 # pch controls the type of point that is displayed in the scatter plots
 chart.Correlation(combined_daily_fluctuations, histogram=TRUE, pch=19)
 ```
-### Possible Findings
+### Looking at Child Brushing Extremes
+
 
 <div style="height:60px;">
 </div>
