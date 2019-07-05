@@ -14,33 +14,33 @@ clean_updated_csv_path = "/Users/appollo_liu/Documents/workspace/Tooth_Brushing/
 clean_updated_csv = csv.DictReader(open(clean_updated_csv_path, 'r'))
 clean_updated_csv_list = list(clean_updated_csv)
 
+subject = "100"
+
 # best and worst brushing are arrays: [date, brushing time]
-best_brushing = []
-worst_brushing = []
+# first set this with empty date and brushing time in between the first subject's
+# max and min time_brushing
+best_brushing = ['empty date', 10.0]
+worst_brushing = ['empty date', 10.0]
+
 # go through each row of the csv
-for row_index in range(0, len(clean_updated_csv_list)-1):
-    # check if the row has a valid date, doesn't have a serious other factor,
+for row_index in range(0, len(clean_updated_csv_list)):
+    # first check if the row has a valid date, doesn't have a serious other factor,
     # and submitted a survey that day (check that parent stress is filled)
     row_date = clean_updated_csv_list[row_index]['date']
     serious_other_factors = clean_updated_csv_list[row_index]['serious_other_factors']
     parent_stress = clean_updated_csv_list[row_index]['parent_stress']
     if (row_date not in first_two_invalid_dates) and (serious_other_factors == '0') and (parent_stress != "NA"):
-        # this day's brushing time is valid
-        # update this subject and compare with next row subject
-        subject = clean_updated_csv_list[row_index]['subject']
-        next_row_subject = clean_updated_csv_list[row_index+1]['subject']
-        time_brushing = clean_updated_csv_list[row_index]['time_brushing']
+        row_subject = clean_updated_csv_list[row_index]['subject']
 
+        # this day's brushing time is valid
+        time_brushing = clean_updated_csv_list[row_index]['time_brushing']
         # sometimes there isn't any brushing, but still valid survey
         if time_brushing == 'NA':
             time_brushing = 0
         time_brushing = float(time_brushing)
 
-        if len(best_brushing) == 0 and len(worst_brushing) == 0:
-            # just got to a new subject, set best and worst brushing to the first date
-            best_brushing = [row_date, time_brushing]
-            worst_brushing = best_brushing
-        elif next_row_subject == subject:
+        # check if row subject is the same as the previous row's subject
+        if row_subject == subject:
             # same subject, continue to adjust best and worst brushing
             if time_brushing > best_brushing[1]:
                 # adjust best_brushing time
@@ -49,36 +49,16 @@ for row_index in range(0, len(clean_updated_csv_list)-1):
                 # adjust worst_brushing time
                 worst_brushing = [row_date, time_brushing]
         else:
-            # next subject is different, need to add the best and worst brushing
-            # to the best_worst_dictionary after checking comparing this row's
-            # time_brushing
-            if time_brushing > best_brushing[1]:
-                # adjust best_brushing time
-                best_brushing = [row_date, time_brushing]
-            elif time_brushing < worst_brushing[1]:
-                # adjust worst_brushing time
-                worst_brushing = [row_date, time_brushing]
-
+            # this is a new subject, need to update the best_worst_dictionary with
+            # the previous subject's best and worst brushing
             best_worst_dictionary[subject] = {best_brushing[0]: "best", worst_brushing[0]: "worst"}
 
-            # reset best and worst brushing
-            best_brushing = []
-            worst_brushing = []
+            # set best and worst brushing to the this row's time_brushing
+            best_brushing = [row_date, time_brushing]
+            worst_brushing = best_brushing
 
-# need to deal with very last row
-last_row_time_brushing = float(clean_updated_csv_list[len(clean_updated_csv_list)-1]['time_brushing'])
-# same subject, continue to adjust best and worst brushing
-if last_row_time_brushing > best_brushing[1]:
-    # adjust best_brushing time
-    best_brushing = [row_date, time_brushing]
-elif last_row_time_brushing < worst_brushing[1]:
-    # adjust worst_brushing time
-    worst_brushing = [row_date, time_brushing]
+            # reset subject
+            subject = row_subject
 
-# always need to add the best and worst brushing to the best_worst_dictionary
-# for the last subject
-best_brushing_date = best_brushing[0]
-worst_brushing_date = worst_brushing[0]
-best_worst_dictionary[subject] = {best_brushing_date: "best", worst_brushing_date: "worst"}
-
-# print('best_worst_dictionary = ', best_worst_dictionary)
+# need to include the very last subject's data
+best_worst_dictionary[subject] = {best_brushing[0]: "best", worst_brushing[0]: "worst"}
