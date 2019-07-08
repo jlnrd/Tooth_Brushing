@@ -6,7 +6,7 @@ import csv
 # worse as the value
 best_worst_dictionary = {}
 
-first_two_invalid_dates = ['1/31/19', '2/1/19', '2/28/19', '3/1/19', '3/21/19', '3/22/19', '4/3/19', '4/4/19', '6/10/19', '6/11/19']
+first_two_invalid_dates = ['1/31/19', '2/28/19', '3/21/19', '4/3/19', '6/10/19']
 
 clean_updated_csv_path = "/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/clean_updated_brushing.csv"
 
@@ -27,7 +27,7 @@ for row_index in range(0, len(clean_updated_csv_list)):
     # first check if the row has a valid date, doesn't have a serious other factor,
     # and submitted a survey that day (check that parent stress is filled)
     row_date = clean_updated_csv_list[row_index]['date']
-    serious_other_factors = clean_updated_csv_list[row_index]['serious_other_factors']
+    serious_other_factors = clean_updated_csv_list[row_index]['other_stringent']
     parent_stress = clean_updated_csv_list[row_index]['parent_stress']
     if (row_date not in first_two_invalid_dates) and (serious_other_factors == '0') and (parent_stress != "NA"):
         row_subject = clean_updated_csv_list[row_index]['subject']
