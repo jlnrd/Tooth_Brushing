@@ -82,6 +82,14 @@ overall_subject <- data.frame("subject_ID" = subject, "mean_time_brushing" = ave
 overall_subject <- overall_subject[!duplicated(overall_subject$subject_ID),]
 ```
 
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+for (subject_ID in unique(daily_fluctuations$subject)) {
+  subject_daily_fluctuations <- filter(daily_fluctuations, subject==subject_ID)
+  print(subject_ID)
+  print(length(subject_daily_fluctuations$subject))
+}
+```
+
 ### Subject box plots
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
@@ -100,15 +108,6 @@ sleep_length_vs_subject +
   geom_boxplot() +
   stat_summary(fun.y="mean", geom="point", shape=9, size=3) +
   labs(title="Subject Sleep", x="Subject",y="Sleep (hours)")
-```
-
-```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-# plot subject's parent stress
-parent_stress_vs_subject <- ggplot(data=daily_fluctuations, mapping=aes(x=as.factor(subject), y=parent_stress))
-parent_stress_vs_subject +
-  geom_boxplot() +
-  stat_summary(fun.y="mean", geom="point", shape=9, size=3) +
-  labs(title="Parent Stress", x="Subject",y="Parent stress level")
 ```
 
 ### Within Subject Relationships between Brushing length, Sleep, and Parent Stress
@@ -160,6 +159,20 @@ within_subject_encouragements_vs_child_mood +
   labs(title="Encouragements vs. Child Mood", x="Child mood",y="Encouragements")
 ```
 
+### Within Subject Correlation Matrices
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# unique(daily_fluctuations$subject)
+for (subject_ID in unique(daily_fluctuations$subject)) {
+  subject_daily_fluctuations <- filter(daily_fluctuations, subject==subject_ID)
+  chart.Correlation(dplyr::select(subject_daily_fluctuations, time_brushing, total_encouragements, parent_stress, parent_mood, child_mood, time_sleep), histogram=TRUE, pch=19)
+}
+```
+
+<p>
+  Note: The symbols show these p-values. 0.001:"***", 0.01: "**", 0.05: "*", 0.10: ".")
+</p>
+
 ### Between Subject Relationships
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
@@ -207,17 +220,17 @@ between_subject_encouragements_vs_child_mood +
   labs(title="Encouragement vs. Child Mood", x="Child mood", y="Encouragement")
 ```
 
-### Daily Fluctuations Correlation Matrix
+### Between Subject Correlation Matrix
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 attach(overall_subject)
 # cbind() combines two matrices that have the same number of rows together
-combined_daily_fluctuations <- cbind(mean_time_brushing, mean_encouragements, mean_parent_stress, mean_parent_mood, mean_child_mood, mean_time_sleep, mean_time_sleep_nonap)
+between_subject_averages <- cbind(mean_time_brushing, mean_encouragements, mean_parent_stress, mean_parent_mood, mean_child_mood, mean_time_sleep, mean_time_sleep_nonap)
 detach(overall_subject)
 
 # graphing the correlation matrix
 # pch controls the type of point that is displayed in the scatter plots
-chart.Correlation(combined_daily_fluctuations, histogram=TRUE, pch=19)
+chart.Correlation(between_subject_averages, histogram=TRUE, pch=19)
 ```
 
 ### Looking at Child Brushing Extremes
