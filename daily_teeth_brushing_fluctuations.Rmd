@@ -71,33 +71,33 @@ attach(daily_fluctuations)
 # find the averages of daily fluctuations for each subject
 average_time_brushing <- with(daily_fluctuations, ave(time_brushing, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 standard_deviation_time_brushing <- with(daily_fluctuations, ave(time_brushing, subject, FUN=function(x) sd(x, na.rm=TRUE)))
-covariance_time_brushing <- standard_deviation_time_brushing/average_time_brushing
+coefficient_of_variation_time_brushing <- standard_deviation_time_brushing/average_time_brushing
 
 average_encouragements <- with(daily_fluctuations, ave(total_encouragements, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 standard_deviation_encouragements <- with(daily_fluctuations, ave(total_encouragements, subject, FUN=function(x) sd(x, na.rm=TRUE)))
-covariance_encouragements <- standard_deviation_encouragements/average_encouragements
+coefficient_of_variation_encouragements <- standard_deviation_encouragements/average_encouragements
 
 average_parent_stress <- with(daily_fluctuations, ave(parent_stress, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 standard_deviation_parent_stress <- with(daily_fluctuations, ave(parent_stress, subject, FUN=function(x) sd(x, na.rm=TRUE)))
-covariance_parent_stress <- standard_deviation_parent_stress/average_parent_stress
+coefficient_of_variation_parent_stress <- standard_deviation_parent_stress/average_parent_stress
 
 average_time_sleep <- with(daily_fluctuations, ave(time_sleep, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 standard_deviation_time_sleep <- with(daily_fluctuations, ave(time_sleep, subject, FUN=function(x) sd(x, na.rm=TRUE)))
-covariance_time_sleep <- standard_deviation_time_sleep/average_time_sleep
+coefficient_of_variation_time_sleep <- standard_deviation_time_sleep/average_time_sleep
 
 average_parent_mood <- with(daily_fluctuations, ave(parent_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 standard_deviation_parent_mood <- with(daily_fluctuations, ave(parent_mood, subject, FUN=function(x) sd(x, na.rm=TRUE)))
-covariance_parent_mood <- standard_deviation_parent_mood/average_parent_mood
+coefficient_of_variation_parent_mood <- standard_deviation_parent_mood/average_parent_mood
 
 average_child_mood <- with(daily_fluctuations, ave(child_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 standard_deviation_child_mood <- with(daily_fluctuations, ave(child_mood, subject, FUN=function(x) sd(x, na.rm=TRUE)))
-covariance_child_mood <- standard_deviation_child_mood/average_child_mood
+coefficient_of_variation_child_mood <- standard_deviation_child_mood/average_child_mood
 
 average_time_sleep_nonap <- with(daily_fluctuations, ave(time_sleep_nonap, subject, FUN=function(x) mean(x, na.rm=TRUE)))
 standard_deviation_time_sleep_nonap <- with(daily_fluctuations, ave(time_sleep_nonap, subject, FUN=function(x) sd(x, na.rm=TRUE)))
-covariance_time_sleep_nonap <- standard_deviation_time_sleep_nonap/average_time_sleep_nonap
+coefficient_of_variation_time_sleep_nonap <- standard_deviation_time_sleep_nonap/average_time_sleep_nonap
 
-overall_subject <- data.frame("subject_ID" = subject, "mean_time_brushing" = average_time_brushing, "sd_time_brushing" = standard_deviation_time_brushing, "cov_time_brushing" = covariance_time_brushing, "mean_encouragements" = average_encouragements, "sd_encouragements" = standard_deviation_encouragements, "cov_encouragements" = covariance_encouragements, "mean_parent_stress" = average_parent_stress, "sd_parent_stress" = standard_deviation_parent_stress, "cov_parent_stress" = covariance_parent_stress, "mean_time_sleep" = average_time_sleep, "sd_time_sleep" = standard_deviation_time_sleep, "cov_time_sleep" = covariance_time_sleep, "mean_parent_mood" = average_parent_mood, "sd_parent_mood" = standard_deviation_parent_mood, "cov_parent_mood" = covariance_parent_mood, "mean_child_mood" = average_child_mood, "sd_child_mood" = standard_deviation_child_mood, "cov_child_mood" = covariance_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap, "sd_time_sleep_nonap" = standard_deviation_time_sleep_nonap, "cov_time_sleep_nonap" = covariance_time_sleep_nonap)
+overall_subject <- data.frame("subject_ID" = subject, "mean_time_brushing" = average_time_brushing, "sd_time_brushing" = standard_deviation_time_brushing, "cv_time_brushing" = coefficient_of_variation_time_brushing, "mean_encouragements" = average_encouragements, "sd_encouragements" = standard_deviation_encouragements, "cv_encouragements" = coefficient_of_variation_encouragements, "mean_parent_stress" = average_parent_stress, "sd_parent_stress" = standard_deviation_parent_stress, "cv_parent_stress" = coefficient_of_variation_parent_stress, "mean_time_sleep" = average_time_sleep, "sd_time_sleep" = standard_deviation_time_sleep, "cv_time_sleep" = coefficient_of_variation_time_sleep, "mean_parent_mood" = average_parent_mood, "sd_parent_mood" = standard_deviation_parent_mood, "cv_parent_mood" = coefficient_of_variation_parent_mood, "mean_child_mood" = average_child_mood, "sd_child_mood" = standard_deviation_child_mood, "cv_child_mood" = coefficient_of_variation_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap, "sd_time_sleep_nonap" = standard_deviation_time_sleep_nonap, "cv_time_sleep_nonap" = coefficient_of_variation_time_sleep_nonap)
 
 overall_subject <- overall_subject[!duplicated(overall_subject$subject_ID),]
 ```
@@ -254,31 +254,51 @@ between_subject_encouragements_vs_child_mood +
   labs(title="Encouragement vs. Child Mood", x="Child mood", y="Encouragement")
 ```
 
-#### Between Subject Correlation Matrix
+#### Between Subject Correlation Matrices
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 attach(overall_subject)
 # cbind() combines two matrices that have the same number of rows together
-between_subject_averages <- cbind(mean_time_brushing, mean_encouragements, mean_parent_stress, mean_parent_mood, mean_child_mood, mean_time_sleep, mean_time_sleep_nonap)
+between_subject_averages <- cbind(mean_time_brushing, mean_encouragements, mean_parent_stress, mean_parent_mood, mean_child_mood, mean_time_sleep)
+
+between_subject_mean_and_sd <- cbind(mean_time_brushing, sd_time_brushing, mean_encouragements, sd_encouragements, mean_parent_stress, sd_parent_stress, mean_parent_mood, sd_parent_mood, mean_child_mood, sd_child_mood, mean_time_sleep, sd_time_sleep)
+
+between_subject_cv <- cbind(cv_time_brushing, cv_encouragements, cv_parent_stress, cv_time_sleep, cv_parent_mood, cv_child_mood)
 detach(overall_subject)
 
 # graphing the correlation matrix
 # pch controls the type of point that is displayed in the scatter plots
 chart.Correlation(between_subject_averages, histogram=TRUE, pch=19)
+
+chart.Correlation(between_subject_mean_and_sd, histogram=TRUE, pch=19)
+
+chart.Correlation(between_subject_cv, histogram=TRUE, pch=19)
 ```
+<p>
+  List of all correlations in mean and standard deviation correlation matrix:
+    1. mean_time_brushing & sd_time_brushing: +
+    2. mean_time_brushing & mean_encouragement: +
+    3. mean_time_brushing & sd_encouragement: +. Makes sense, the more child brushing, the more variation in how much time the parent has to give more encouragements.
+    4. mean_time_brushing & mean_parent_stress: -
+    5. sd_time_brushing & mean_encouragement: +. The greater the variation in brushing, the more encouragement. This could be that because the parent knows that the child has the potential to brush more, the parent can try to offer more encouragement to the child so that the child is reaching their "highest potential" time brushing.
+    6. sd_time_brushing & sd_encouragement: +
+    7. sd_time_brushing & mean_parent_stress: -. Higher variation in brushing correlates with lower average parent stress. Would have thought that higher variation would cause parent stress to be higher because the parent doesn't know what's going to happen.
+    8. mean_encouragement & sd_encouragement: +. Similar to correlation to mean_time_brushing & sd_time_brushing: the greater the average number of encouragements, the greater the variation in the total number of encouragements.
+    9. sd_encouragement & mean_child_mood: -. Higher variation in encouragment correlates with lower average child mood. Kind of makes sense: if the child is unhappy, parents may react differently by either giving a lot of encouragement or give no encouragement and give up.
+    10. mean_parent_stress & mean_parent_mood: -
+    11. mean_parent_stress & mean_child_mood: -
+    12. sd_parent_stress & sd_parent_mood: +
+    13. mean_parent_mood & sd_parent_mood: -
+    14. mean_parent_mood & mean_child_mood: +
+    15. mean_parent_mood & sd_time_sleep: +. High average parent mood correlates with high variation in child sleep. Not really sure because would have assummed that low variation in child sleep would make the parent happier.
+    16. sd_parent_mood & sd_child_mood: +
+    17. sd_parent_mood & mean_time_sleep: -. High variation in parent mood correlates with lower child sleep. Kind of makes sense: parent mood varies more when the child sleeps less.
+    18. mean_child_mood & sd_child_mood: -. High average child mood correlates with less variation in the child mood.
+</p>
 
-#### Between Subject Standard Deviation and Covariance
-
-```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-attach(overall_subject)
-# cbind() combines two matrices that have the same number of rows together
-between_subject_averages <- cbind(mean_time_brushing, mean_encouragements, mean_parent_stress, mean_parent_mood, mean_child_mood, mean_time_sleep, mean_time_sleep_nonap)
-detach(overall_subject)
-
-# graphing the correlation matrix
-# pch controls the type of point that is displayed in the scatter plots
-chart.Correlation(between_subject_averages, histogram=TRUE, pch=19)
-```
+<p>
+  Interesting finding that the more variation in the child's mood, the more variation there is in time brushing according to the cv correlation matrix.
+</p>
 
 <div style="height:60px;">
 </div>
