@@ -57,6 +57,7 @@ theme_set(theme_bw() + theme( plot.title = element_text(size=18, lineheight=1, m
 ##################
 ## read in data ##
 ##################
+participant_background_information<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/parent_q_clean_n28.csv", header=TRUE)
 daily_fluctuations<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/clean_updated_brushing.csv", header=TRUE)
 
 invalid_dates <- c('1/31/19', '2/28/19', '3/21/19', '4/3/19', '6/10/19')
@@ -172,11 +173,8 @@ within_subject_encouragements_vs_child_mood +
 ```
 
 ### Within Subject Correlation Matrices
-```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-subject_daily_fluctuations <- filter(daily_fluctuations, subject=="101")
-chart.Correlation(dplyr::select(subject_daily_fluctuations, time_brushing, total_encouragements, parent_stress, parent_mood, child_mood, time_sleep), histogram=TRUE, pch=19)
-```
 
+#### Correlation Matrix For All Valid Subjects
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 # unique(daily_fluctuations$subject)
 for (subject_id in unique(daily_fluctuations$subject)) {
@@ -188,6 +186,18 @@ for (subject_id in unique(daily_fluctuations$subject)) {
 <p>
   Note: The symbols show these p-values. 0.001:"***", 0.01: "**", 0.05: "*", 0.10: ".")
 </p>
+
+#### Correlation Matrix For Subjects In Study Version 2
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+# unique(daily_fluctuations$subject)
+for (subject_id in unique(daily_fluctuations$subject)) {
+  if (as.numeric(subject_id) > 118) {
+    # part of study version 2
+  subject_daily_fluctuations <- filter(daily_fluctuations, subject==subject_id)
+  chart.Correlation(dplyr::select(subject_daily_fluctuations, time_brushing, total_encouragements, parent_stress, parent_mood, child_mood, time_sleep, fussy_am, fussy_pm_reversed), histogram=TRUE, pch=19)
+  }
+}
+```
 
 #### Looking at Child Brushing Extremes
 
@@ -299,6 +309,13 @@ chart.Correlation(between_subject_cv, histogram=TRUE, pch=19)
 <p>
   Interesting finding that the more variation in the child's mood, the more variation there is in time brushing according to the cv correlation matrix.
 </p>
+
+#### Between Subject Predictions
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+sum(overall_subject$mean_time_sleep > worst_time_brushing$time_sleep)
+length(overall_subject$mean_time_sleep)
+```
 
 <div style="height:60px;">
 </div>
