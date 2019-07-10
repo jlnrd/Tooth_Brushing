@@ -82,14 +82,6 @@ overall_subject <- data.frame("subject_ID" = subject, "mean_time_brushing" = ave
 overall_subject <- overall_subject[!duplicated(overall_subject$subject_ID),]
 ```
 
-```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-for (subject_ID in unique(daily_fluctuations$subject)) {
-  subject_daily_fluctuations <- filter(daily_fluctuations, subject==subject_ID)
-  print(subject_ID)
-  print(length(subject_daily_fluctuations$subject))
-}
-```
-
 ### Subject box plots
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
@@ -160,11 +152,15 @@ within_subject_encouragements_vs_child_mood +
 ```
 
 ### Within Subject Correlation Matrices
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+subject_daily_fluctuations <- filter(daily_fluctuations, subject=="101")
+chart.Correlation(dplyr::select(subject_daily_fluctuations, time_brushing, total_encouragements, parent_stress, parent_mood, child_mood, time_sleep), histogram=TRUE, pch=19)
+```
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 # unique(daily_fluctuations$subject)
-for (subject_ID in unique(daily_fluctuations$subject)) {
-  subject_daily_fluctuations <- filter(daily_fluctuations, subject==subject_ID)
+for (subject_id in unique(daily_fluctuations$subject)) {
+  subject_daily_fluctuations <- filter(daily_fluctuations, subject==subject_id)
   chart.Correlation(dplyr::select(subject_daily_fluctuations, time_brushing, total_encouragements, parent_stress, parent_mood, child_mood, time_sleep), histogram=TRUE, pch=19)
 }
 ```
@@ -244,6 +240,11 @@ between_subject_worst_brushing_sleep_vs_mean_sleep +
   geom_point(data=overall_subject, aes(x=subject_ID, y=mean_time_sleep), shape=5, size=4) +
   geom_point(data=worst_time_brushing, aes(x=subject, y=time_sleep), shape=1, size=4) +
   labs(title="Subject Worst Night Brushing Sleep vs. Average Sleep", x="Subject", y="Child sleep (hours)", color="Sleep")
+```
+
+```{r,warning=FALSE}
+sum(overall_subject$mean_time_sleep > worst_time_brushing$time_sleep)
+length(overall_subject$mean_time_sleep)
 ```
 
 <div style="height:60px;">
