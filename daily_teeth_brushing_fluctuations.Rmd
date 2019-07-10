@@ -70,14 +70,34 @@ attach(daily_fluctuations)
 # find the overall participant information
 # find the averages of daily fluctuations for each subject
 average_time_brushing <- with(daily_fluctuations, ave(time_brushing, subject, FUN=function(x) mean(x, na.rm=TRUE)))
-average_encouragements <- with(daily_fluctuations, ave(total_encouragements, subject, FUN=function(x) mean(x, na.rm=TRUE)))
-average_parent_stress <- with(daily_fluctuations, ave(parent_stress, subject, FUN=function(x) mean(x, na.rm=TRUE)))
-average_time_sleep <- with(daily_fluctuations, ave(time_sleep, subject, FUN=function(x) mean(x, na.rm=TRUE)))
-average_parent_mood <- with(daily_fluctuations, ave(parent_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
-average_child_mood <- with(daily_fluctuations, ave(child_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
-average_time_sleep_nonap <- with(daily_fluctuations, ave(time_sleep_nonap, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+standard_deviation_time_brushing <- with(daily_fluctuations, ave(time_brushing, subject, FUN=function(x) sd(x, na.rm=TRUE)))
+covariance_time_brushing <- standard_deviation_time_brushing/average_time_brushing
 
-overall_subject <- data.frame("subject_ID" = subject, "mean_time_brushing" = average_time_brushing, "mean_encouragements" = average_encouragements, "mean_parent_stress" = average_parent_stress, "mean_time_sleep" = average_time_sleep, "mean_parent_mood" = average_parent_mood, "mean_child_mood" = average_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap)
+average_encouragements <- with(daily_fluctuations, ave(total_encouragements, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+standard_deviation_encouragements <- with(daily_fluctuations, ave(total_encouragements, subject, FUN=function(x) sd(x, na.rm=TRUE)))
+covariance_encouragements <- standard_deviation_encouragements/average_encouragements
+
+average_parent_stress <- with(daily_fluctuations, ave(parent_stress, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+standard_deviation_parent_stress <- with(daily_fluctuations, ave(parent_stress, subject, FUN=function(x) sd(x, na.rm=TRUE)))
+covariance_parent_stress <- standard_deviation_parent_stress/average_parent_stress
+
+average_time_sleep <- with(daily_fluctuations, ave(time_sleep, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+standard_deviation_time_sleep <- with(daily_fluctuations, ave(time_sleep, subject, FUN=function(x) sd(x, na.rm=TRUE)))
+covariance_time_sleep <- standard_deviation_time_sleep/average_time_sleep
+
+average_parent_mood <- with(daily_fluctuations, ave(parent_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+standard_deviation_parent_mood <- with(daily_fluctuations, ave(parent_mood, subject, FUN=function(x) sd(x, na.rm=TRUE)))
+covariance_parent_mood <- standard_deviation_parent_mood/average_parent_mood
+
+average_child_mood <- with(daily_fluctuations, ave(child_mood, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+standard_deviation_child_mood <- with(daily_fluctuations, ave(child_mood, subject, FUN=function(x) sd(x, na.rm=TRUE)))
+covariance_child_mood <- standard_deviation_child_mood/average_child_mood
+
+average_time_sleep_nonap <- with(daily_fluctuations, ave(time_sleep_nonap, subject, FUN=function(x) mean(x, na.rm=TRUE)))
+standard_deviation_time_sleep_nonap <- with(daily_fluctuations, ave(time_sleep_nonap, subject, FUN=function(x) sd(x, na.rm=TRUE)))
+covariance_time_sleep_nonap <- standard_deviation_time_sleep_nonap/average_time_sleep_nonap
+
+overall_subject <- data.frame("subject_ID" = subject, "mean_time_brushing" = average_time_brushing, "sd_time_brushing" = standard_deviation_time_brushing, "cov_time_brushing" = covariance_time_brushing, "mean_encouragements" = average_encouragements, "sd_encouragements" = standard_deviation_encouragements, "cov_encouragements" = covariance_encouragements, "mean_parent_stress" = average_parent_stress, "sd_parent_stress" = standard_deviation_parent_stress, "cov_parent_stress" = covariance_parent_stress, "mean_time_sleep" = average_time_sleep, "sd_time_sleep" = standard_deviation_time_sleep, "cov_time_sleep" = covariance_time_sleep, "mean_parent_mood" = average_parent_mood, "sd_parent_mood" = standard_deviation_parent_mood, "cov_parent_mood" = covariance_parent_mood, "mean_child_mood" = average_child_mood, "sd_child_mood" = standard_deviation_child_mood, "cov_child_mood" = covariance_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap, "sd_time_sleep_nonap" = standard_deviation_time_sleep_nonap, "cov_time_sleep_nonap" = covariance_time_sleep_nonap)
 
 overall_subject <- overall_subject[!duplicated(overall_subject$subject_ID),]
 ```
@@ -102,7 +122,7 @@ sleep_length_vs_subject +
   labs(title="Subject Sleep", x="Subject",y="Sleep (hours)")
 ```
 
-### Within Subject Relationships between Brushing length, Sleep, and Parent Stress
+### Within Subject Relationships
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 # plot time brushing vs. encouragements
@@ -169,6 +189,24 @@ for (subject_id in unique(daily_fluctuations$subject)) {
   Note: The symbols show these p-values. 0.001:"***", 0.01: "**", 0.05: "*", 0.10: ".")
 </p>
 
+#### Looking at Child Brushing Extremes
+
+```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
+worst_time_brushing<-filter(daily_fluctuations, brushing_rank=="worst")
+best_time_brushing<-filter(daily_fluctuations, brushing_rank=="best")
+
+between_subject_worst_brushing_sleep_vs_mean_sleep <- ggplot()
+between_subject_worst_brushing_sleep_vs_mean_sleep +
+  geom_point(data=overall_subject, aes(x=subject_ID, y=mean_time_sleep), shape=5, size=4) +
+  geom_point(data=worst_time_brushing, aes(x=subject, y=time_sleep), shape=1, size=4) +
+  labs(title="Subject Worst Night Brushing Sleep vs. Average Sleep", x="Subject", y="Child sleep (hours)", color="Sleep")
+```
+
+```{r,warning=FALSE}
+sum(overall_subject$mean_time_sleep > worst_time_brushing$time_sleep)
+length(overall_subject$mean_time_sleep)
+```
+
 ### Between Subject Relationships
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
@@ -216,7 +254,7 @@ between_subject_encouragements_vs_child_mood +
   labs(title="Encouragement vs. Child Mood", x="Child mood", y="Encouragement")
 ```
 
-### Between Subject Correlation Matrix
+#### Between Subject Correlation Matrix
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 attach(overall_subject)
@@ -229,22 +267,17 @@ detach(overall_subject)
 chart.Correlation(between_subject_averages, histogram=TRUE, pch=19)
 ```
 
-### Looking at Child Brushing Extremes
+#### Between Subject Standard Deviation and Covariance
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-worst_time_brushing<-filter(daily_fluctuations, brushing_rank=="worst")
-best_time_brushing<-filter(daily_fluctuations, brushing_rank=="best")
+attach(overall_subject)
+# cbind() combines two matrices that have the same number of rows together
+between_subject_averages <- cbind(mean_time_brushing, mean_encouragements, mean_parent_stress, mean_parent_mood, mean_child_mood, mean_time_sleep, mean_time_sleep_nonap)
+detach(overall_subject)
 
-between_subject_worst_brushing_sleep_vs_mean_sleep <- ggplot()
-between_subject_worst_brushing_sleep_vs_mean_sleep +
-  geom_point(data=overall_subject, aes(x=subject_ID, y=mean_time_sleep), shape=5, size=4) +
-  geom_point(data=worst_time_brushing, aes(x=subject, y=time_sleep), shape=1, size=4) +
-  labs(title="Subject Worst Night Brushing Sleep vs. Average Sleep", x="Subject", y="Child sleep (hours)", color="Sleep")
-```
-
-```{r,warning=FALSE}
-sum(overall_subject$mean_time_sleep > worst_time_brushing$time_sleep)
-length(overall_subject$mean_time_sleep)
+# graphing the correlation matrix
+# pch controls the type of point that is displayed in the scatter plots
+chart.Correlation(between_subject_averages, histogram=TRUE, pch=19)
 ```
 
 <div style="height:60px;">
