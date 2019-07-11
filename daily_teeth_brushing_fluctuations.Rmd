@@ -23,7 +23,8 @@ h3 {
 }
 
 h4 {
-  font-size: 18px;
+  font-size: 20px;
+  padding-top: 30px;
 }
 
 p {
@@ -119,6 +120,7 @@ overall_subject$sum_pss <- subject_background_information$pss_sum
 overall_subject$median_income <- subject_background_information$income_median
 overall_subject$number_of_siblings <- subject_background_information$num_siblings
 overall_subject$child_birth_weight <- subject_background_information$child_birth_weight
+overall_subject$likes_brushing <- subject_background_information$like_brushing
 ```
 
 ### Subject box plots
@@ -130,9 +132,7 @@ brushing_length_vs_subject +
   geom_boxplot() +
   stat_summary(fun.y="mean", geom="point", shape=9, size=3) +
   labs(title="Subject Brushing Length", x="Subject",y="Brushing length (seconds)")
-```
 
-```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 # plot subject sleep
 sleep_length_vs_subject <- ggplot(data=daily_fluctuations, mapping=aes(x=as.factor(subject), y=time_sleep))
 sleep_length_vs_subject +
@@ -152,57 +152,22 @@ within_subject_time_brushing_vs_encouragements +
   geom_smooth(method=lm, se=FALSE, fullrange=FALSE) +
   stat_cor(method = "pearson",  size =3) +
   labs(title="Time Brushing vs. Encouragements", x="Encouragements",y="Time brushing (seconds)")
-
-# plot time brushing vs. time sleep
-within_subject_time_brushing_vs_time_sleep <- ggplot(data=daily_fluctuations, aes(x=time_sleep, y=time_brushing))
-within_subject_time_brushing_vs_time_sleep + 
-  facet_wrap(~subject) +
-  geom_point(shape=1) +
-  geom_smooth(method=lm, se=FALSE, fullrange=FALSE) +
-  stat_cor(method = "pearson",  size =3) +
-  labs(title="Time Brushing vs. Child Sleep", x="Child sleep (hours)",y="Time brushing (seconds)")
-
-# plot time_brushing vs. child mood
-within_subject_time_brushing_vs_child_mood <- ggplot(data=daily_fluctuations, aes(x=child_mood, y=time_brushing))
-within_subject_time_brushing_vs_child_mood + 
-  facet_wrap(~subject) +
-  geom_point(shape=1) +
-  geom_smooth(method=lm, se=FALSE, fullrange=FALSE) +
-  stat_cor(method = "pearson",  size =3) +
-  labs(title="Time Brushing vs. Child Mood", x="Child mood", y="Time brushing (seconds)")
-
-# plot encouragements vs. child sleep
-within_subject_encouragements_vs_child_sleep <- ggplot(data=daily_fluctuations, aes(x=time_sleep, y=total_encouragements))
-within_subject_encouragements_vs_child_sleep + 
-  facet_wrap(~subject) +
-  geom_point(shape=1) +
-  geom_smooth(method=lm, se=FALSE, fullrange=FALSE) +
-  stat_cor(method = "pearson",  size =3) +
-  labs(title="Encouragements vs. Child Sleep", x="Child sleep (hours)",y="Encouragements")
-
-# plot encouragements vs. child mood
-within_subject_encouragements_vs_child_mood <- ggplot(data=daily_fluctuations, aes(x=child_mood, y=total_encouragements))
-within_subject_encouragements_vs_child_mood + 
-  facet_wrap(~subject) +
-  geom_point(shape=1) +
-  geom_smooth(method=lm, se=FALSE, fullrange=FALSE) +
-  stat_cor(method = "pearson",  size =3) +
-  labs(title="Encouragements vs. Child Mood", x="Child mood",y="Encouragements")
 ```
 
 ### Within Subject Correlation Matrices
 
-#### Correlation Matrix For All Valid Subjects
+#### Correlation Matrix For Each Valid Subjects
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
 # unique(daily_fluctuations$subject)
 for (subject_id in unique(daily_fluctuations$subject)) {
+  print(paste("Correlation matrix for subject =", toString(subject_id), sep=" "))
   subject_daily_fluctuations <- filter(daily_fluctuations, subject==subject_id)
   chart.Correlation(dplyr::select(subject_daily_fluctuations, time_brushing, total_encouragements, parent_stress, parent_mood, child_mood, time_sleep), histogram=TRUE, pch=19)
 }
 ```
 
 <p>
-  Note: The symbols show these p-values. 0.001:"***", 0.01: "**", 0.05: "*", 0.10: ".")
+  Note: The symbols show these p-values. 0.001: 3 stars, 0.01: 2 stars, 0.05: 1 star, 0.10: ".")
 </p>
 
 #### Correlation Matrix For Subjects In Study Version 2
@@ -211,8 +176,9 @@ for (subject_id in unique(daily_fluctuations$subject)) {
 for (subject_id in unique(daily_fluctuations$subject)) {
   if (as.numeric(subject_id) > 118) {
     # part of study version 2
-  subject_daily_fluctuations <- filter(daily_fluctuations, subject==subject_id)
-  chart.Correlation(dplyr::select(subject_daily_fluctuations, time_brushing, total_encouragements, parent_stress, parent_mood, child_mood, time_sleep, fussy_am, fussy_pm_reversed), histogram=TRUE, pch=19)
+    print(paste("Correlation matrix for subject =", toString(subject_id), sep=" "))
+    subject_daily_fluctuations <- filter(daily_fluctuations, subject==subject_id)
+    chart.Correlation(dplyr::select(subject_daily_fluctuations, time_brushing, total_encouragements, parent_stress, parent_mood, child_mood, time_sleep, fussy_am, fussy_pm_reversed), histogram=TRUE, pch=19)
   }
 }
 ```
@@ -237,54 +203,12 @@ length(overall_subject$average_time_sleep)
 
 ### Between Subject Relationships
 
-```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE}
-# plot brushing length vs. encouragements 
-between_subject_brushing_length_vs_encouragements <- ggplot(data=overall_subject, mapping=aes(x=average_encouragements, y=average_time_brushing))
-between_subject_brushing_length_vs_encouragements +
-  stat_cor(method = "pearson",  size = 6) +
-  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-  geom_point(shape=1) +
-  labs(title="Brushing Length vs. Encouragements", x="Encouragements", y="Brushing length")
-
-# plot brushing length vs. child sleep
-between_subject_brushing_length_vs_child_sleep <- ggplot(data=overall_subject, mapping=aes(x=average_time_sleep, y=average_time_brushing))
-between_subject_brushing_length_vs_child_sleep +
-  stat_cor(method = "pearson",  size = 6) +
-  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-  geom_point(shape=1) +
-  labs(title="Brushing Length vs. Child Sleep", x="Child sleep (hours)", y="Brushing length (seconds)")
-
-# plot brushing length vs. child mood
-between_subject_brushing_length_vs_child_mood <- ggplot(data=overall_subject, mapping=aes(x=average_child_mood, y=average_time_brushing))
-between_subject_brushing_length_vs_child_mood +
-  stat_cor(method = "pearson",  size = 6) +
-  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-  geom_point(shape=1) +
-  labs(title="Brushing Length vs. Child Mood", x="Child sleep mood", y="Brushing length (seconds)")
-
-# plot encouragements vs. child sleep
-between_subject_encouragements_vs_time_sleep <- ggplot(data=overall_subject, mapping=aes(x=average_time_sleep, y=average_encouragements))
-between_subject_encouragements_vs_time_sleep +
-  stat_cor(method = "pearson",  size = 6) +
-  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-  geom_point(shape=1) +
-  labs(title="Encouragement vs. Child sleep", x="Child sleep (hours)", y="Encouragement")
-
-# plot encouragements vs. child mood
-between_subject_encouragements_vs_child_mood <- ggplot(data=overall_subject, mapping=aes(x=average_child_mood, y=average_encouragements))
-between_subject_encouragements_vs_child_mood +
-  stat_cor(method = "pearson",  size = 6) +
-  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-  geom_point(shape=1) +
-  labs(title="Encouragement vs. Child Mood", x="Child mood", y="Encouragement")
-```
-
 #### Between Subject Correlation Matrices
 
 ```{r,warning=FALSE,fig.width=10, fig.height=8,echo = FALSE, warn.conflicts = FALSE}
 attach(overall_subject)
 # cbind() combines two matrices that have the same number of rows together
-between_subject_averages <- cbind(average_time_brushing, average_encouragements, average_parent_stress, average_parent_mood, average_child_mood, average_time_sleep, average_parent_education, median_income, number_of_siblings, child_birth_weight, sum_pss)
+between_subject_averages <- cbind(average_time_brushing, average_encouragements, average_parent_stress, average_parent_mood, average_child_mood, average_time_sleep, average_parent_education, median_income, number_of_siblings, child_birth_weight, sum_pss, likes_brushing)
 
 between_subject_average_and_sd <- cbind(average_time_brushing, sd_time_brushing, average_encouragements, sd_encouragements, average_parent_stress, sd_parent_stress, average_parent_mood, sd_parent_mood, average_child_mood, sd_child_mood, average_time_sleep, sd_time_sleep)
 
@@ -300,30 +224,37 @@ chart.Correlation(between_subject_average_and_sd, histogram=TRUE, pch=19)
 chart.Correlation(between_subject_cv, histogram=TRUE, pch=19)
 ```
 <p>
-  List of all correlations in mean and standard deviation correlation matrix:
-    1. average_time_brushing & sd_time_brushing: +
-    2. average_time_brushing & average_encouragement: +
-    3. average_time_brushing & sd_encouragement: +. Makes sense, the more child brushing, the more variation in how much time the parent has to give more encouragements.
-    4. average_time_brushing & average_parent_stress: -
-    5. sd_time_brushing & average_encouragement: +. The greater the variation in brushing, the more encouragement. This could be that because the parent knows that the child has the potential to brush more, the parent can try to offer more encouragement to the child so that the child is reaching their "highest potential" time brushing.
-    6. sd_time_brushing & sd_encouragement: +
-    7. sd_time_brushing & average_parent_stress: -. Higher variation in brushing correlates with lower average parent stress. Would have thought that higher variation would cause parent stress to be higher because the parent doesn't know what's going to happen.
-    8. average_encouragement & sd_encouragement: +. Similar to correlation to average_time_brushing & sd_time_brushing: the greater the average number of encouragements, the greater the variation in the total number of encouragements.
-    9. sd_encouragement & average_child_mood: -. Higher variation in encouragment correlates with lower average child mood. Kind of makes sense: if the child is unhappy, parents may react differently by either giving a lot of encouragement or give no encouragement and give up.
-    10. average_parent_stress & average_parent_mood: -
-    11. average_parent_stress & average_child_mood: -
-    12. sd_parent_stress & sd_parent_mood: +
-    13. average_parent_mood & sd_parent_mood: -
-    14. average_parent_mood & average_child_mood: +
-    15. average_parent_mood & sd_time_sleep: +. High average parent mood correlates with high variation in child sleep. Not really sure because would have assummed that low variation in child sleep would make the parent happier.
-    16. sd_parent_mood & sd_child_mood: +
-    17. sd_parent_mood & average_time_sleep: -. High variation in parent mood correlates with lower child sleep. Kind of makes sense: parent mood varies more when the child sleeps less.
-    18. average_child_mood & sd_child_mood: -. High average child mood correlates with less variation in the child mood.
+  Notable correlations in the first between subject correlation matrix:  
+    1. Negative correlation between average time brushing and pss sum which supports the similar negative correlation between average time brushing and average parent stress.  
+    2. There’s also an interesting positive correlation between number of siblings and child birth weight.  
+    3. A positive correlation between time brushing and how much the child likes brushing.  
+    4. Positive correlation between time brushing and median income.  
+    5. Very large negative correlation between time brushing and number of siblings.  
+Note: Correlations 3 through 5 only take into account responses from subjects in second version of study.
 </p>
-
+<p>
+  List of all correlations in mean and standard deviation (2nd) correlation matrix:  
+    1. average_time_brushing & sd_time_brushing: +  
+    2. average_time_brushing & average_encouragement: +  
+    3. average_time_brushing & sd_encouragement: +. Makes sense, the more child brushing, the more variation in how much time the parent has to give more encouragements.  
+    4. average_time_brushing & average_parent_stress: -  
+    5. sd_time_brushing & average_encouragement: +. The greater the variation in brushing, the more encouragement. This could be that because the parent knows that the child has the potential to brush more, the parent can try to offer more encouragement to the child so that the child is reaching their "highest potential" time brushing.  
+    6. sd_time_brushing & sd_encouragement: +  
+    7. sd_time_brushing & average_parent_stress: -. Higher variation in brushing correlates with lower average parent stress. Would have thought that higher variation would cause parent stress to be higher because the parent doesn't know what's going to happen.  
+    8. average_encouragement & sd_encouragement: +. Similar to correlation to average_time_brushing & sd_time_brushing: the greater the average number of encouragements, the greater the variation in the total number of encouragements.  
+    9. sd_encouragement & average_child_mood: -. Higher variation in encouragment correlates with lower average child mood. Kind of makes sense: if the child is unhappy, parents may react differently by either giving a lot of encouragement or give no encouragement and give up.  
+    10. average_parent_stress & average_parent_mood: -  
+    11. average_parent_stress & average_child_mood: -  
+    12. sd_parent_stress & sd_parent_mood: +  
+    13. average_parent_mood & sd_parent_mood: -  
+    14. average_parent_mood & average_child_mood: +  
+    15. average_parent_mood & sd_time_sleep: +. High average parent mood correlates with high variation in child sleep. Not really sure because would have assummed that low variation in child sleep would make the parent happier.  
+    16. sd_parent_mood & sd_child_mood: +  
+    17. sd_parent_mood & average_time_sleep: -. High variation in parent mood correlates with lower child sleep. Kind of makes sense: parent mood varies more when the child sleeps less.  
+    18. average_child_mood & sd_child_mood: -. High average child mood correlates with less variation in the child mood.  
+</p>
 <p>
   Interesting finding that the more variation in the child's mood, the more variation there is in time brushing according to the cv correlation matrix.
 </p>
-
 <div style="height:60px;">
 </div>
