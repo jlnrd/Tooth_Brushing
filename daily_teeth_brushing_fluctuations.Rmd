@@ -57,12 +57,16 @@ theme_set(theme_bw() + theme( plot.title = element_text(size=18, lineheight=1, m
 ##################
 ## read in data ##
 ##################
-participant_background_information<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/parent_q_clean_n28.csv", header=TRUE)
+subject_background_information<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/parent_q_clean_n28.csv", header=TRUE)
 daily_fluctuations<-read.csv("/Users/appollo_liu/Documents/workspace/Tooth_Brushing/data/clean_updated_brushing.csv", header=TRUE)
 
 invalid_dates <- c('1/31/19', '2/28/19', '3/21/19', '4/3/19', '6/10/19')
 # take out all of the data from the first day of the study, any data from an unusual day, and any data where there was no survey submitted for that day 
 daily_fluctuations<-filter(daily_fluctuations, !(date %in% invalid_dates), other_stringent=="0", !is.na(parent_stress))
+
+invalid_subjects <- c("103", "115", "126")
+subject_background_information<-filter(subject_background_information, !(subject %in% invalid_subjects))
+
 
 # makes each "key" in the data object its own variable
 # Example: data$record_id is now record_id
@@ -101,6 +105,17 @@ coefficient_of_variation_time_sleep_nonap <- standard_deviation_time_sleep_nonap
 overall_subject <- data.frame("subject_ID" = subject, "mean_time_brushing" = average_time_brushing, "sd_time_brushing" = standard_deviation_time_brushing, "cv_time_brushing" = coefficient_of_variation_time_brushing, "mean_encouragements" = average_encouragements, "sd_encouragements" = standard_deviation_encouragements, "cv_encouragements" = coefficient_of_variation_encouragements, "mean_parent_stress" = average_parent_stress, "sd_parent_stress" = standard_deviation_parent_stress, "cv_parent_stress" = coefficient_of_variation_parent_stress, "mean_time_sleep" = average_time_sleep, "sd_time_sleep" = standard_deviation_time_sleep, "cv_time_sleep" = coefficient_of_variation_time_sleep, "mean_parent_mood" = average_parent_mood, "sd_parent_mood" = standard_deviation_parent_mood, "cv_parent_mood" = coefficient_of_variation_parent_mood, "mean_child_mood" = average_child_mood, "sd_child_mood" = standard_deviation_child_mood, "cv_child_mood" = coefficient_of_variation_child_mood, "mean_time_sleep_nonap" = average_time_sleep_nonap, "sd_time_sleep_nonap" = standard_deviation_time_sleep_nonap, "cv_time_sleep_nonap" = coefficient_of_variation_time_sleep_nonap)
 
 overall_subject <- overall_subject[!duplicated(overall_subject$subject_ID),]
+
+# list of interesting data columns in subject_background_information
+# age_firstword_recode_mos, parent1_edu, parent2_edu, income_median, num_siblings, child_birth_weight, age_walking_recode_mos
+# average the parent education
+mean_parent_education <- (subject_background_information$parent1_edu + subject_background_information$parent2_edu) / 2
+
+# subject 107 only provided parent education for parent 1, so making average education equal to parent 1 edu
+mean_parent_education <- replace(mean_parent_education, 7, 18)
+
+# add the subject_background information into the overall_subject data.frame
+overall_subject <- cbind(overall_subject, subject_background_information %>% dplyr::select(pss_sum, income_median), mean_parent_education)
 ```
 
 ### Subject box plots
