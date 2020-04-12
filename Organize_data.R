@@ -159,7 +159,10 @@ time_in_hour <- as.integer(format(strptime(data$bed_time, "%H:%M"), '%H'))
 data$has_bed_time_error <- ifelse(time_in_hour > 3 & time_in_hour < 18, FALSE, TRUE)
 # Make sure sleep > 2
 data$has_time_sleep_error <- ifelse(as.integer(data$time_sleep) > 2, FALSE, TRUE)
-
+# Check duplicate dates and skipped days
+days_between <- as.Date(data$date, format="%Y-%m-%d") - as.Date(lag(data$date), format="%Y-%m-%d")
+changing_subject <-data$subject - lag(data$subject)
+data$date_error <- ifelse(days_between != 1 & changing_subject != 1, TRUE, FALSE)                                                                
 
 #write out csv
 write.csv(data, "/Users/appollo_liu/Documents/workspace/changing_brain_lab/Tooth_Brushing/data/complete_day_031920.csv")
