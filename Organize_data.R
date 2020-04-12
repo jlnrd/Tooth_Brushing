@@ -33,11 +33,12 @@ time2decimal <- function(x) {
 }
 
 ##################
-## read in data##
+## read in data ##
 ##################
 
 #read in evening data 
-evening<-read.csv("/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/evening_031920.csv",header = TRUE, sep = ",")
+evening<-read.csv("/Users/appollo_liu/Documents/workspace/changing_brain_lab/Tooth_Brushing/data/evening_031920.csv", header=TRUE, sep = ",")
+# evening<-read.csv("/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/evening_031920.csv",header = TRUE, sep = ",")
 
 
 #rename columns
@@ -62,7 +63,8 @@ eve$date<-ifelse(eve$time_dec<12, eve$prev_date,eve$date)
 
 
 #read in morning data and rename column names
-morning<-read.csv("/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/morning_031920.csv",header = TRUE, sep = ",")
+morning<-read.csv("/Users/appollo_liu/Documents/workspace/changing_brain_lab/Tooth_Brushing/data/morning_031920.csv", header=TRUE, sep = ",")
+# morning<-read.csv("/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/morning_031920.csv",header = TRUE, sep = ",")
 
 #rename columns
 setnames(morning, old=c("What.time.did.your.child.wake.up.this.morning.","Did.your.child.wake.up.last.night.", "How.many.times.did.your.child.wake.up.last.night." ,"How.many.minutes.was.your.child.awake.last.night.","What.is.your.child.s.mood.this.morning....1","What.is.your.stress.level.right.now....Click.to.write.Choice.1" ), 
@@ -77,12 +79,13 @@ morn$date<- str_replace(morn$date, "0020", "2020")
 #just collect the data we want and merge
 eve_dat<-eve%>%dplyr::select(subject,date,time_pm,nap, nap_length,time_last_meal,amount_eat, child_mood_pm, parent_mood_pm, parent_stress_pm, fussy_pm, other_factors, teeth_time, bed_time)
 morn_dat<-morn%>%dplyr::select(subject, date, time_am, wakeup_time, wakeup_night, times_wakeup_night, minutes_wakeup_night, child_mood_am, parent_stress_am)
+
 data<-merge(eve_dat, morn_dat, by =c("subject","date"), all =TRUE)
 #merge with day and date file
-day<- read.csv("/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/dates_031920.csv",header = TRUE, sep = ",")
-day$date<-as.Date(day$date, "%m/%d/%Y")
-day$date<- str_replace(day$date, "0020", "2020")
-data<-merge(data, day, by =c("date"), all =TRUE)
+# day<- read.csv("/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/dates_031920.csv",header = TRUE, sep = ",")
+# day$date<-as.Date(day$date, "%m/%d/%Y")
+# day$date<- str_replace(day$date, "0020", "2020")
+# data<-merge(data, day, by =c("date"), all =TRUE)
 
 
 ### Calculate time sleeping!
@@ -96,8 +99,11 @@ data$min_up_night[is.na(data$min_up_night)] <- 0
 data$nap_length<-(as.numeric(data$nap_length)/60)
 data$nap_length[is.na(data$nap_length)] <- 0
 
+# Wake time syncs with previous day's bed time to calculate time sleep, so need to use lag
+# When the bed_time is past midnight, need to calculate time_sleep_no_nap a little differently
+data$time_sleep_nonap <- ifelse(lag(data$bed) > 3, 24-lag(data$bed)+data$wake-data$min_up_night, data$wake-lag(data$bed)-data$min_up_night)
 data<-data %>%
-  group_by(subject) %>%mutate(time_sleep_nonap = (24-lag(bed))+wake-min_up_night )
+  group_by(subject)
 
 #add nap from THAT DAY
 data$time_sleep<-data$time_sleep_nonap+data$nap_length
@@ -111,25 +117,25 @@ data$time_since_meal<-data$timebrush -data$time_meal
 ## merge with vcode ########
 ##########################
 
-vcode<- read.csv("/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/batch031920_vcode.csv",header = TRUE, sep = ",")
+# vcode<- read.csv("/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/batch031920_vcode.csv",header = TRUE, sep = ",")
 
 
 #rename columns
-setnames(vcode, old=c("SubjectID.Time","Date.Time","totalDuration.Time"), 
-         new=c("subject","date","time_brushing"))
+# setnames(vcode, old=c("SubjectID.Time","Date.Time","totalDuration.Time"), 
+#          new=c("subject","date","time_brushing"))
 
 #reformat date information
-vcode$date_int<-as.integer(vcode$date)
-vcode$date_1 <- sub("(.{1})(*)", "\\1/\\", vcode$date)
-vcode$date_reformat <- sub("(.{4})(*)", "\\1/\\", vcode$date_1)
-vcode$date_test<-as.Date(as.character(vcode$date_reformat), "%m/%d/%Y")
-vcode$date<- str_replace(vcode$date_test, "0020", "2020")
-vcode_data<-vcode%>%dplyr::select(subject,date, time_brushing,date)
+# vcode$date_int<-as.integer(vcode$date)
+# vcode$date_1 <- sub("(.{1})(*)", "\\1/\\", vcode$date)
+# vcode$date_reformat <- sub("(.{4})(*)", "\\1/\\", vcode$date_1)
+# vcode$date_test<-as.Date(as.character(vcode$date_reformat), "%m/%d/%Y")
+# vcode$date<- str_replace(vcode$date_test, "0020", "2020")
+# vcode_data<-vcode%>%dplyr::select(subject,date, time_brushing,date)
 
 #reformat data date
 #data$date<- as.Date(data$date, "%m/%d/%Y")
 #data$date<- str_replace(data$date, "0020", "2020")
-data<-merge(data, vcode_data, by =c("subject","date"), all =TRUE)
+# data<-merge(data, vcode_data, by =c("subject","date"), all =TRUE)
 
 ##merge with encouragement data
 #enc<- read.csv("/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/pilot4_data/pilot4_encouragement.csv",header = TRUE, sep = ",")
@@ -144,8 +150,20 @@ data<-merge(data, vcode_data, by =c("subject","date"), all =TRUE)
 #data$date<- str_replace(data$date, "0020", "2020")
 #data<-merge(data, enc_data, by =c("subject","date"), all =TRUE)
 
+# Automating checks
+# Make sure wakeup_time is between 4:00-13:00
+time_in_hour <- as.integer(format(strptime(data$wakeup_time, "%H:%M"), '%H'))
+data$has_wakeup_time_error <- ifelse(time_in_hour > 4 & time_in_hour < 13, FALSE, TRUE)
+# Make sure bed_time is between 18:00-3:00
+time_in_hour <- as.integer(format(strptime(data$bed_time, "%H:%M"), '%H'))
+data$has_bed_time_error <- ifelse(time_in_hour > 3 & time_in_hour < 18, FALSE, TRUE)
+# Make sure sleep > 2
+data$has_time_sleep_error <- ifelse(as.integer(data$time_sleep) > 2, FALSE, TRUE)
+
+
 #write out csv
-write.csv(data,'/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/teeth_merged_031920_all.csv')
+write.csv(data, "/Users/appollo_liu/Documents/workspace/changing_brain_lab/Tooth_Brushing/data/complete_day_031920.csv")
+# write.csv(data,'/Users/julialeonard/Dropbox (Personal)/julia pc docs/Penn Post-doc/Teeth brushing/Data/Batch 3.19.20 data/teeth_merged_031920_all.csv')
 
 
 #merge with older csv
