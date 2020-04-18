@@ -162,7 +162,7 @@ data$has_time_sleep_error <- ifelse(as.integer(data$time_sleep) > 2, FALSE, TRUE
 # Check duplicate dates and skipped days
 days_between <- as.Date(data$date, format="%Y-%m-%d") - as.Date(lag(data$date), format="%Y-%m-%d")
 changing_subject <-data$subject - lag(data$subject)
-data$date_error <- ifelse(days_between != 1 & changing_subject != 1, TRUE, FALSE)
+data$date_error <- ifelse(days_between != 1 & changing_subject == 0, TRUE, FALSE)
 
 # Remove the time_sleep data for days with a date_error
 data$time_sleep_nonap <- ifelse(data$date_error, NA, data$time_sleep_nonap)
