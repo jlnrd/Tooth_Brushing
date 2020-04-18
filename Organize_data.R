@@ -156,7 +156,7 @@ time_in_hour <- as.integer(format(strptime(data$wakeup_time, "%H:%M"), '%H'))
 data$has_wakeup_time_error <- ifelse(time_in_hour > 4 & time_in_hour < 13, FALSE, TRUE)
 # Make sure bed_time is between 18:00-3:00
 time_in_hour <- as.integer(format(strptime(data$bed_time, "%H:%M"), '%H'))
-data$has_bed_time_error <- ifelse(time_in_hour > 3 & time_in_hour < 18, FALSE, TRUE)
+data$has_bed_time_error <- ifelse(time_in_hour > 3 & time_in_hour < 18, TRUE, FALSE)
 # Make sure sleep > 2
 data$has_time_sleep_error <- ifelse(as.integer(data$time_sleep) > 2, FALSE, TRUE)
 # Check duplicate dates and skipped days
