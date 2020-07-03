@@ -68,11 +68,24 @@ def fill_video_coding_tracker(summary_csv_path, tracker_csv_path):
 
     # need to add the last row's encouragement
     last_row = summary_csv_list[number_of_rows-1]
+
     if (row_date == next_row_date):
         # two last rows are for the same day
         if (len(last_row['PARENTAL ENCOURAGEMENT']) > 0):
-            type_of_encouragement = row["FINAL CODE"].upper().replace(" ", "_")
-            row_dictionary[type_of_encouragement] += 1
+            type_of_encouragement = last_row["FINAL CODE"].lower()
+            encouragement_count[type_of_encouragement] += 1
+            row_dictionary = {
+                'SUBJECT': row['SUBJECT'],
+                'DATE': row_date,
+                'PARENT': row['PARENT'],
+                'BRIBE': encouragement_count["bribe"],
+                'DIRECT_INSTRUCTION': encouragement_count["direct instruction"],
+                'THREAT': encouragement_count["threat"],
+                'PRETEND_PLAY': encouragement_count["pretend play"],
+                'CHEERING': encouragement_count["cheering"],
+                'PRAISE': encouragement_count["praise"],
+                'OTHER': encouragement_count["other"],
+            }
             tracker_csv_writer.writerow(row_dictionary)
     else:
         # just need to write in the last row's encouragement
